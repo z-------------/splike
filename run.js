@@ -25,11 +25,7 @@ function evaluate(thing, scope = {}) {
             throw `'${thing.fn}' is not a function.`;
         }
         if (noEvalForms.includes(thing.fn)) {
-            return fn(scope, ...thing.operands.map(operand => {
-                if (type(operand) === "ListExpr") return operand;
-                else if (typeof operand === "string") return { type: "Token", source: operand };
-                else return evaluate(operand, scope);
-            }));
+            return fn(scope, ...thing.operands);
         } else {
             return fn(scope, ...thing.operands.map(operand => evaluate(operand, scope)));
         }
@@ -44,11 +40,10 @@ const noEvalForms = ["def", "defined?", "if", "let"];
 
 const globals = {
     "def": (scope, name, value) => {
-        if (type(name) !== "Token") throw "Invalid left-hand side in `def`."
-        globals[name.source] = value;
+        globals[name] = evaluate(value);
     },
     "defined?": (scope, name) => {
-        return name.source in globals;
+        return name in globals;
     },
     "if": (scope, condition, trueBranch, falseBranch) => {
         const cond = evaluate(condition, scope);

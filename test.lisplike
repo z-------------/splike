@@ -3,9 +3,11 @@
 (print "foo =" foo)
 
 (let [bar 1]
-    (if (< bar foo)
-        (print bar "is less than" foo)
-        (print bar "is not less than" foo "!!")))
+    (print "bar =" bar)
+    (print "bar < foo?")
+    (print (if (< bar foo)
+        "yes"
+        "no")))
 
-(print (defined? foo))
-(print (defined? bar))
+(print "foo defined?" (defined? foo))
+(print "bar defined?" (defined? bar))

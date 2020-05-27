@@ -110,6 +110,15 @@ const globals = {
     "<": (_, x, y) => {
         return x < y;
     },
+    "head": (_, x, ...rest) => {
+        return x;
+    },
+    "tail": (_, x, ...rest) => {
+        return rest;
+    },
+    "apply": (_, fn, args) => {
+        return fn(_, ...args);
+    },
 };
 
 (async () => {

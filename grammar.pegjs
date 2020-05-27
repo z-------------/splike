@@ -22,7 +22,7 @@ Expression
 
 List
   = "(" expr:ListContents ")" { return expr; }
-  
+
 ListContents
   = _* head:Item tail:(_ Item)* _* {
       return [head, tail.map(element => element[1])];
@@ -41,13 +41,13 @@ Item
   / Boolean
   / Identifier
   / Expression
-  
+
 Identifier
   = IdentifierCharacter+ IdentifierEndCharacter* { return text(); }
- 
+
 IdentifierCharacter
   = [A-Za-z_+\-*/^<>=&]
-  
+
 IdentifierEndCharacter
   = [0-9?]
 
@@ -75,13 +75,13 @@ Number
   / Integer
 
 Float
-  = Digit* "." Digit+ { return parseFloat(text()); }
+  = "-"? Digit* "." Digit+ { return parseFloat(text()); }
 
 Integer
-  = Digit+ { return parseInt(text()); }
+  = "-"? Digit+ { return parseInt(text()); }
 
 Digit
   = [0-9]
-  
+
 _ "whitespace"
   = [ \t\n\r]+

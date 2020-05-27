@@ -1,5 +1,10 @@
-(defn succ
+(defn inc
     ([a] (+ 1 a)))
 
 (defn not
     ([x] (if (= x true) false true)))
+
+(defn -
+    ([x] (* -1 x))
+    ([x y] (+ x (* -1 y)))
+    ([x & rest] (- x (apply + rest))))

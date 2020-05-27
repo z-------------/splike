@@ -1,16 +1,5 @@
-(defn recprint
-    ([x] (print x))
-    ([x & rest]
-        (print x)
-        (apply recprint rest)))
+(print (- 5))
 
-(recprint "Hello" "World")
+(print (- 10 2 3))
 
-
-(defn fib
-    ([x]
-        (if (or (= x 0) (= x 1))
-            x
-            (+ (fib (- x 1)) (fib (- x 2))))))
-
-(print (fib 15))
+(print (- 3 1 2))

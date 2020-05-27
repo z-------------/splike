@@ -117,8 +117,10 @@ const globals = {
         for (const it of rest) s += it;
         return s;
     },
-    "-": (_, x, ...rest) => {
-        return globals["+"](_, x, ...rest.map(n => -n));
+    "*": (_, x, ...rest) => {
+        let p = x;
+        for (const it of rest) p *= it;
+        return p;
     },
     "=": (_, x, y) => {
         return x == y;
@@ -145,7 +147,7 @@ const globals = {
     log(source);
 
     log("=".repeat(process.stdout.columns));
-    
+
     log("PARSE:")
 
     let output;

@@ -1,0 +1,13 @@
+dependencies:
+  pegjs: 0.10.0
+lockfileVersion: 5.1
+packages:
+  /pegjs/0.10.0:
+    dev: false
+    engines:
+      node: '>=0.10'
+    hasBin: true
+    resolution:
+      integrity: sha1-z4uvrm7d/0tafvsYUmnqr0YQ3b0=
+specifiers:
+  pegjs: ^0.10.0

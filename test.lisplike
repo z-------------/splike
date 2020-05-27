@@ -1,0 +1,11 @@
+(def foo 0)
+
+(print "foo =" foo)
+
+(let [bar 1]
+    (if (< bar foo)
+        (print bar "is less than" foo)
+        (print bar "is not less than" foo "!!")))
+
+(print (defined? foo))
+(print (defined? bar))

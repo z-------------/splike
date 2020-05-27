@@ -1,0 +1,8 @@
+{
+	"scripts": {
+		"gen": "pegjs -o parser.js grammar.pegjs"
+	},
+	"dependencies": {
+		"pegjs": "^0.10.0"
+	}
+}

@@ -46,7 +46,7 @@ Identifier
   = IdentifierCharacter+ IdentifierEndCharacter* { return text(); }
  
 IdentifierCharacter
-  = [A-Za-z_+\-*/^<>=]
+  = [A-Za-z_+\-*/^<>=&]
   
 IdentifierEndCharacter
   = [0-9?]

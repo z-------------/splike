@@ -1,3 +1,16 @@
-(let [l '(1 2 3)]
-    (print (apply head l))
-    (print (apply tail l)))
+(defn recprint
+    ([x] (print x))
+    ([x & rest]
+        (print x)
+        (apply recprint rest)))
+
+(recprint "Hello" "World")
+
+
+(defn fib
+    ([x]
+        (if (or (= x 0) (= x 1))
+            x
+            (+ (fib (- x 1)) (fib (- x 2))))))
+
+(print (fib 15))

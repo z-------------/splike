@@ -47,12 +47,28 @@ const globals = {
     "defn": (_, name, ...variants) => {
         globals[name] = function(scope, ...args) {
             for (const variant of variants) {
-                if (variant.head.elements.length === args.length) {
+                const params = variant.head.elements;
+
+                let namedParamCount = 0;
+                const hasRestParam = params.includes("&");
+                for (const param of params) {
+                    if (param === "&") break;
+                    ++namedParamCount;
+                }
+                if (hasRestParam && params.indexOf("&") !== params.length - 2) {
+                    throw new SyntaxError("Invalid use of &-operator.");
+                }
+                const restParamName = params[params.length - 1];
+
+                if (namedParamCount === args.length || hasRestParam && namedParamCount <= args.length) {
                     const s = {};
                     Object.assign(s, scope);
-                    for (let i = 0; i < variant.head.elements.length; ++i) {
-                        const parameter = variant.head.elements[i];
-                        s[parameter] = args[i];
+                    for (let i = 0; i < args.length; ++i) {
+                        const param = params[i];
+                        s[param] = args[i];
+                    }
+                    if (hasRestParam) {
+                        s[restParamName] = args.slice(namedParamCount);
                     }
                     let result = [];
                     for (const expr of variant.tail) {
@@ -60,8 +76,8 @@ const globals = {
                     }
                     return result;
                 }
-                throw new TypeError(`No matching call signature for \`${name}\` with arguments (${args.join(" ")}).`);
             }
+            throw new TypeError(`No matching call signature for \`${name}\` with arguments (${args.join(" ")}).`);
         };
     },
     "defined?": (scope, name) => {

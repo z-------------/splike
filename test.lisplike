@@ -1,13 +1,4 @@
-(def foo 0)
+(let [foo (succ 100)]
+    (print (succ foo)))
 
-(print "foo =" foo)
-
-(let [bar 1]
-    (print "bar =" bar)
-    (print "bar < foo?")
-    (print (if (< bar foo)
-        "yes"
-        "no")))
-
-(print "foo defined?" (defined? foo))
-(print "bar defined?" (defined? bar))
+(print (not true))

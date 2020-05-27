@@ -10,8 +10,8 @@ Expression
       if (t === null) {
         return {
           type: "ListExpr",
-          fn: l[0],
-          operands: l[1],
+          head: l[0],
+          tail: l[1],
         };
       } else {
         return [l[0], ...l[1]];
@@ -35,6 +35,7 @@ SquareList
 Item
   = String
   / Number
+  / Boolean
   / Identifier
   / Expression
   
@@ -52,6 +53,10 @@ DoubleStringSourceCharacter
 
 SingleStringSourceCharacter
   = !"'" . { return text(); }
+
+Boolean
+  = "true" { return true; }
+  / "false" { return false; }
 
 String
   = '"' literal:DoubleStringSourceCharacter+ '"' {

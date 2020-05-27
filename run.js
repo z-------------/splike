@@ -20,14 +20,14 @@ function evaluate(thing, scope = {}) {
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
     } else if (type(thing) === "ListExpr") {
-        const fn = getVal(thing.fn, scope);
+        const fn = getVal(thing.head, scope);
         if (!(fn instanceof Function)) {
-            throw `'${thing.fn}' is not a function.`;
+            throw `'${thing.head}' is not a function.`;
         }
-        if (noEvalForms.includes(thing.fn)) {
-            return fn(scope, ...thing.operands);
+        if (noEvalForms.includes(thing.head)) {
+            return fn(scope, ...thing.tail);
         } else {
-            return fn(scope, ...thing.operands.map(operand => evaluate(operand, scope)));
+            return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
         }
     } else if (typeof thing === "string") {
         return getVal(thing, scope);
@@ -36,11 +36,27 @@ function evaluate(thing, scope = {}) {
     }
 }
 
-const noEvalForms = ["def", "defined?", "if", "let"];
+const noEvalForms = ["def", "defn", "defined?", "if", "let"];
 
 const globals = {
     "def": (scope, name, value) => {
         globals[name] = evaluate(value);
+    },
+    "defn": (_, name, ...variants) => {
+        globals[name] = function(scope, ...args) {
+            for (const variant of variants) {
+                if (variant.head.elements.length === args.length) {
+                    const s = {};
+                    Object.assign(s, scope);
+                    for (let i = 0; i < variant.head.elements.length; ++i) {
+                        const parameter = variant.head.elements[i];
+                        s[parameter] = args[i];
+                    }
+                    return evaluate(variant.tail[0], s);
+                }
+                throw new TypeError(`No matching call signature for \`${name}\` with arguments (${args.join(" ")}).`);
+            }
+        };
     },
     "defined?": (scope, name) => {
         return name in globals;
@@ -56,7 +72,7 @@ const globals = {
             scope[b.elements[i]] = evaluate(b.elements[i + 1]);
         }
         for (const expr of exprs) {
-            evaluate({ type: "ListExpr", fn: expr.fn, operands: expr.operands }, scope);
+            evaluate({ type: "ListExpr", head: expr.head, tail: expr.tail }, scope);
         }
     },
     "print": (_, ...stuff) => { console.log(...stuff); },
@@ -74,14 +90,12 @@ const globals = {
     "<": (_, x, y) => {
         return x < y;
     },
-    ">": (_, x, y) => {
-        return x > y;
-    },
 };
 
 (async () => {
     log("SOURCE:")
 
+    const stdSource = await fsp.readFile("std.lisplike", "utf-8");
     const source = await fsp.readFile("test.lisplike", "utf-8");
     log(source);
 
@@ -91,7 +105,7 @@ const globals = {
 
     let output;
     try {
-        output = p.parse(source);
+        output = p.parse([stdSource, source].join("\n"));
     } catch (exp) {
         console.error(exp.stack);
         process.exit(1);

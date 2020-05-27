@@ -1,0 +1,5 @@
+(defn succ
+    ([a] (+ 1 a)))
+
+(defn not
+    ([x] (if (= x true) false true)))

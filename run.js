@@ -20,6 +20,7 @@ function evaluate(thing, scope = {}) {
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
     } else if (type(thing) === "ListExpr") {
+        if (type(thing.head) === "Empty") return;
         const fn = getVal(thing.head, scope);
         if (!(fn instanceof Function)) {
             throw `'${thing.head}' is not a function.`;
@@ -36,9 +37,10 @@ function evaluate(thing, scope = {}) {
     }
 }
 
-const noEvalForms = ["def", "defn", "defined?", "if", "let"];
+const noEvalForms = ["def", "defn", "defined?", "if", "let", "and", "or"];
 
 const globals = {
+    // macros
     "def": (scope, name, value) => {
         globals[name] = evaluate(value);
     },
@@ -52,7 +54,11 @@ const globals = {
                         const parameter = variant.head.elements[i];
                         s[parameter] = args[i];
                     }
-                    return evaluate(variant.tail[0], s);
+                    let result = [];
+                    for (const expr of variant.tail) {
+                        result = evaluate(expr, s);
+                    }
+                    return result;
                 }
                 throw new TypeError(`No matching call signature for \`${name}\` with arguments (${args.join(" ")}).`);
             }
@@ -67,7 +73,7 @@ const globals = {
         else return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
-        if (type(b) !== "SquareList") throw "First argument must be a squarelist.";
+        if (type(b) !== "SquareList") throw "First argument to `let` must be a squarelist.";
         for (let i = 0; i < b.elements.length; i += 2) {
             scope[b.elements[i]] = evaluate(b.elements[i + 1]);
         }
@@ -75,6 +81,20 @@ const globals = {
             evaluate({ type: "ListExpr", head: expr.head, tail: expr.tail }, scope);
         }
     },
+    "and": (scope, ...args) => {
+        for (const arg of args) {
+            if (!evaluate(arg, scope)) return false;
+        }
+        return true;
+    },
+    "or": (scope, ...args) => {
+        for (const arg of args) {
+            if (evaluate(arg, scope)) return true;
+        }
+        return false;
+    },
+
+    // functions
     "print": (_, ...stuff) => { console.log(...stuff); },
     "+": (_, x, ...rest) => {
         let s = x;

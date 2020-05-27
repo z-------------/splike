@@ -1,4 +1,11 @@
-(let [foo (succ 100)]
-    (print (succ foo)))
+(defn t_expr ([]
+    (print "eval t_expr")
+    true))
 
-(print (not true))
+(defn f_expr ([]
+    (print "eval f_expr")
+    false))
+
+(print (and (t_expr) (f_expr) (t_expr) (t_expr)))
+
+(print (or (f_expr) (t_expr) (f_expr) (t_expr) (t_expr)))

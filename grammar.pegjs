@@ -14,7 +14,8 @@ Expression
           tail: l[1],
         };
       } else {
-        return [l[0], ...l[1]];
+        if (l[0].type === "Empty") return [];
+        else return [l[0], ...l[1]];
       }
     }
   / SquareList
@@ -26,10 +27,12 @@ ListContents
   = _* head:Item tail:(_ Item)* _* {
       return [head, tail.map(element => element[1])];
     }
+  / _* { return [{ type: "Empty" }, []]; }
 
 SquareList
   = "[" expr:ListContents "]" {
-      return { type: "SquareList", elements: [expr[0], ...expr[1]] };
+      const elements = expr[0].type === "Empty" ? [] : [expr[0], ...expr[1]];
+      return { type: "SquareList", elements };
     }
 
 Item

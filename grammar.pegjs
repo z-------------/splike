@@ -70,7 +70,7 @@ Boolean
   / "false" !IdentifierCharacter { return false; }
 
 Number
-  = sig:(Float / Integer) [eE] man:(Float / Integer) { return sig * 10 ** man; }
+  = sig:(Float / Integer) "e"i man:(Float / Integer) { return sig * 10 ** man; }
   / Float
   / Integer
 

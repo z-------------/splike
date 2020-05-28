@@ -5,6 +5,10 @@ const p = require("./parser");
 
 const log = process.argv[2] === "-q" ? function() {} : function(...stuff) { console.log(...stuff); }
 
+function readFile(filename) {
+    return fsp.readFile(filename, "utf-8");
+}
+
 function type(x) {
     return x.type;
 }
@@ -36,6 +40,41 @@ function evaluate(thing, scope = {}) {
         return getVal(thing, scope);
     } else {
         return thing;
+    }
+}
+
+async function runFile(filename) {
+    log("=".repeat(process.stdout.columns));
+
+    log("SOURCE:")
+
+    const source = await readFile(filename);
+    log(source);
+
+    log("=".repeat(process.stdout.columns));
+
+    log("PARSE:")
+
+    let output;
+    try {
+        output = p.parse(source);
+    } catch (exp) {
+        console.error(exp.stack);
+        console.error(exp.location);
+        process.exit(1);
+    }
+    log(util.inspect(output, { showHidden: false, depth: null }));
+
+    log("=".repeat(process.stdout.columns));
+
+    log("OUTPUT:")
+
+    try {
+        for (const expr of output) {
+            evaluate(expr);
+        }
+    } catch (exp) {
+        console.error("Exception:", exp);
     }
 }
 
@@ -156,36 +195,7 @@ const globals = {
 };
 
 (async () => {
-    log("SOURCE:")
-
-    const stdSource = await fsp.readFile("std.lisplike", "utf-8");
-    const source = await fsp.readFile("test.lisplike", "utf-8");
-    log(source);
-
-    log("=".repeat(process.stdout.columns));
-
-    log("PARSE:")
-
-    let output;
-    try {
-        output = p.parse([stdSource, source].join("\n"));
-        // output = p.parse(source);
-    } catch (exp) {
-        console.error(exp.stack);
-        console.error(exp.location);
-        process.exit(1);
-    }
-    log(util.inspect(output, { showHidden: false, depth: null }));
-
-    log("=".repeat(process.stdout.columns));
-
-    log("OUTPUT:")
-
-    try {
-        for (const expr of output) {
-            evaluate(expr);
-        }
-    } catch (exp) {
-        console.error("Exception:", exp);
+    for (const filename of ["std.lisplike", "test.lisplike"]) {
+        await runFile(filename);
     }
 })();

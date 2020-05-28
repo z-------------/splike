@@ -57,10 +57,6 @@ DoubleStringSourceCharacter
 SingleStringSourceCharacter
   = !"'" . { return text(); }
 
-Boolean
-  = "true" { return true; }
-  / "false" { return false; }
-
 String
   = '"' literal:DoubleStringSourceCharacter+ '"' {
       return { type: "StringLiteral", literal: literal.join("") };
@@ -68,6 +64,10 @@ String
   / "'" literal:SingleStringSourceCharacter+ "'" {
       return { type: "StringLiteral", literal: literal.join("") };
     }
+
+Boolean
+  = "true" !IdentifierCharacter { return true; }
+  / "false" !IdentifierCharacter { return false; }
 
 Number
   = sig:(Float / Integer) [eE] man:(Float / Integer) { return sig * 10 ** man; }

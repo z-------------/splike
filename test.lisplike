@@ -1,5 +1,8 @@
-(print (- 5))
+(defn true-expr
+    ([] (print "true-expr") true))
 
-(print (- 10 2 3))
+(defn false-expr
+    ([] (print "false-expr") false))
 
-(print (- 3 1 2))
+(print (and (true-expr) (false-expr) (true-expr)))
+(print (or (false-expr) (true-expr) (false-expr) (true-expr)))

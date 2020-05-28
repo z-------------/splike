@@ -195,7 +195,7 @@ const globals = {
 };
 
 (async () => {
-    for (const filename of ["std.lisplike", "test.lisplike"]) {
+    for (const filename of ["std.splike", "test.splike"]) {
         await runFile(filename);
     }
 })();

@@ -66,8 +66,14 @@
     ([a b]
         (apply and
             (apply map
-                (fn ([t] (= (# t 0) (# t 1))))
+                (fn ([t] (eq (# t 0) (# t 1))))
                 (zip a b)))))
+
+(defn eq
+    ([a b]
+        (if (= (type a) "Array")
+            (list-eq a b)
+            (= a b))))
 
 (defn ceil
     ([x] (+ 1 (floor x))))

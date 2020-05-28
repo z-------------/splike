@@ -1,2 +1,5 @@
-(print (list-eq '(0 2 4) '(0 2 4)))
-(print (list-eq '(0 2 4) '(0 2 5)))
+(print (eq '(0 2 4) '(0 2 4)))
+(print (eq '(0 2 4) '(0 2 5)))
+
+(print (eq 4 4.0))
+(print (eq 4 5))

@@ -36,11 +36,11 @@ SquareList
     }
 
 Item
-  = String
-  / Number
+  = Number
   / Boolean
   / Identifier
   / Expression
+  / String
 
 Identifier
   = IdentifierCharacter+ IdentifierEndCharacter* { return text(); }

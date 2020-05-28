@@ -16,7 +16,7 @@ function getVal(x, scope) {
 }
 
 function evaluate(thing, scope = {}) {
-    // console.log(thing);
+    // console.log(thing, scope);
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
     } else if (type(thing) === "ListExpr") {
@@ -30,6 +30,8 @@ function evaluate(thing, scope = {}) {
         } else {
             return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
         }
+    } else if (Array.isArray(thing)) {
+        return thing.map(item => evaluate(item, scope));
     } else if (typeof thing === "string") {
         return getVal(thing, scope);
     } else {
@@ -51,25 +53,33 @@ const globals = {
 
                 let namedParamCount = 0;
                 const hasRestParam = params.includes("&");
-                for (const param of params) {
-                    if (param === "&") break;
-                    ++namedParamCount;
-                }
-                if (hasRestParam && params.indexOf("&") !== params.length - 2) {
+                const restOpIdx = hasRestParam ? params.indexOf("&") : params.length;
+                if (hasRestParam && (restOpIdx !== params.lastIndexOf("&") || restOpIdx == params.length - 1)) {
                     throw new SyntaxError("Invalid use of &-operator.");
                 }
-                const restParamName = params[params.length - 1];
+                for (let i = 0; i < params.length; ++i) {
+                    const param = params[i];
+                    if (param === "&" || i > 0 && params[i - 1] === "&") continue;
+                    ++namedParamCount;
+                }
+                const restParamName = params[restOpIdx + 1];
 
                 if (namedParamCount === args.length || hasRestParam && namedParamCount <= args.length) {
                     const s = {};
                     Object.assign(s, scope);
-                    for (let i = 0; i < args.length; ++i) {
-                        const param = params[i];
-                        s[param] = args[i];
+                    for (let i = 0; i < restOpIdx; ++i) {
+                        s[params[i]] = args[i];
+                    }
+                    for (let i = 0; i < params.length; ++i) {
+                        const argsI = args.length - 1 - i;
+                        const paramsI = params.length - 1 - i;
+                        if (paramsI <= restOpIdx + 1) break;
+                        s[params[paramsI]] = args[argsI];
                     }
                     if (hasRestParam) {
-                        s[restParamName] = args.slice(namedParamCount);
+                        s[restParamName] = args.slice(restOpIdx, restOpIdx + args.length - namedParamCount);
                     }
+                    // console.log(params, args, s);
                     let result = [];
                     for (const expr of variant.tail) {
                         result = evaluate(expr, s);
@@ -111,6 +121,9 @@ const globals = {
     },
 
     // functions
+    "type": (_, x) => {
+        return x.constructor.name;
+    },
     "print": (_, ...stuff) => { console.log(...stuff); },
     "+": (_, x, ...rest) => {
         let s = x;
@@ -134,8 +147,11 @@ const globals = {
     "tail": (_, x, ...rest) => {
         return rest;
     },
-    "apply": (_, fn, args) => {
-        return fn(_, ...args);
+    "apply": (_, fn, ...args) => {
+        return fn(_, ...args.slice(0, args.length - 1), ...args[args.length - 1]);
+    },
+    "cons": (_, x, seq) => {
+        return [x, ...seq];
     },
 };
 
@@ -153,8 +169,10 @@ const globals = {
     let output;
     try {
         output = p.parse([stdSource, source].join("\n"));
+        // output = p.parse(source);
     } catch (exp) {
         console.error(exp.stack);
+        console.error(exp.location);
         process.exit(1);
     }
     log(util.inspect(output, { showHidden: false, depth: null }));

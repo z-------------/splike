@@ -1,10 +1,59 @@
+(defn assert
+    ([cond]
+        (if (not cond)
+            (die "Assertion failed"))))
+
 (defn inc
     ([a] (+ 1 a)))
 
+(defn dec
+    ([a] (- a 1)))
+
 (defn not
     ([x] (if (= x true) false true)))
+
+(defn xor
+    ([x y]
+        (or
+            (and (not x) y)
+            (and x (not y)))))
+
+(defn nand
+    ([& rest] (not (apply and rest))))
+
+(defn nor
+    ([& rest] (not (apply or rest))))
 
 (defn -
     ([x] (* -1 x))
     ([x y] (+ x (* -1 y)))
     ([x & rest] (- x (apply + rest))))
+
+(defn >
+    ([a b] (and (not (< a b)) (not (= a b)))))
+
+(defn >=
+    ([a b] (or (> a b) (= a b))))
+
+(defn <=
+    ([a b] (or (< a b) (= a b))))
+
+(defn map
+    ([f] '())
+    ([f x] '((f x)))
+    ([f x & rest] (cons (f x) (apply map f rest))))
+
+(defn count
+    ([] 0)
+    ([x] 1)
+    ([x & rest] (+ 1 (apply count rest))))
+
+(defn ceil
+    ([x] (+ 1 (floor x))))
+
+(defn round
+    ([x]
+        (let [t (floor x)]
+            (if (< (- x t) 0.5)
+                t
+                (ceil x)))))

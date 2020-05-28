@@ -5,6 +5,10 @@ const p = require("./parser");
 
 const log = process.argv[2] === "-q" ? function() {} : function(...stuff) { console.log(...stuff); }
 
+function formatHRTime([seconds, nanoseconds]) {
+    return `${seconds}.${nanoseconds.toString().padStart(9, "0")}s`;
+}
+
 function readFile(filename) {
     return fsp.readFile(filename, "utf-8");
 }
@@ -48,13 +52,17 @@ async function runFile(filename) {
 
     log("SOURCE:")
 
+    const readStartTime = process.hrtime();
     const source = await readFile(filename);
+    const readDiffTime = process.hrtime(readStartTime);
     log(source);
+    log(`Read in ${formatHRTime(readDiffTime)}.`);
 
     log("=".repeat(process.stdout.columns));
 
     log("PARSE:")
 
+    const parseStartTime = process.hrtime();
     let output;
     try {
         output = p.parse(source);
@@ -63,12 +71,15 @@ async function runFile(filename) {
         console.error(exp.location);
         process.exit(1);
     }
+    const parseDiffTime = process.hrtime(parseStartTime);
     log(util.inspect(output, { showHidden: false, depth: null }));
+    log(`Parsed in ${formatHRTime(parseDiffTime)}.`);
 
     log("=".repeat(process.stdout.columns));
 
     log("OUTPUT:")
-
+    
+    const runStartTime = process.hrtime();
     try {
         for (const expr of output) {
             evaluate(expr);
@@ -76,6 +87,8 @@ async function runFile(filename) {
     } catch (exp) {
         console.error("Exception:", exp);
     }
+    const runDiffTime = process.hrtime(runStartTime);
+    log(`Ran in ${formatHRTime(runDiffTime)}.`)
 }
 
 const noEvalForms = ["def", "defn", "defined?", "if", "let", "and", "or"];
@@ -135,26 +148,30 @@ const globals = {
     "if": (scope, condition, trueBranch, falseBranch) => {
         const cond = evaluate(condition, scope);
         if (cond) return evaluate(trueBranch, scope);
-        else return evaluate(falseBranch, scope);
+        else if (falseBranch) return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
         if (type(b) !== "SquareList") throw "First argument to `let` must be a squarelist.";
         for (let i = 0; i < b.elements.length; i += 2) {
-            scope[b.elements[i]] = evaluate(b.elements[i + 1]);
+            scope[b.elements[i]] = evaluate(b.elements[i + 1], scope);
         }
+        let result;
         for (const expr of exprs) {
-            evaluate({ type: "ListExpr", head: expr.head, tail: expr.tail }, scope);
+            result = evaluate({ type: "ListExpr", head: expr.head, tail: expr.tail }, scope);
         }
+        return result;
     },
     "and": (scope, ...args) => {
         for (const arg of args) {
-            if (!evaluate(arg, scope)) return false;
+            const val = evaluate(arg, scope);
+            if (!val) return false;
         }
         return true;
     },
     "or": (scope, ...args) => {
         for (const arg of args) {
-            if (evaluate(arg, scope)) return true;
+            const val = evaluate(arg, scope);
+            if (val) return true;
         }
         return false;
     },
@@ -164,6 +181,10 @@ const globals = {
         return x.constructor.name;
     },
     "print": (_, ...stuff) => { console.log(...stuff); },
+    "die": (_, ...stuff) => {
+        console.error("Fatal:", ...stuff);
+        process.exit(1);
+    },
     "+": (_, x, ...rest) => {
         let s = x;
         for (const it of rest) s += it;
@@ -180,17 +201,20 @@ const globals = {
     "<": (_, x, y) => {
         return x < y;
     },
-    "head": (_, x, ...rest) => {
-        return x;
+    "head": (_, list) => {
+        return list[0];
     },
-    "tail": (_, x, ...rest) => {
-        return rest;
+    "tail": (_, list) => {
+        return list.slice(1);
     },
     "apply": (_, fn, ...args) => {
         return fn(_, ...args.slice(0, args.length - 1), ...args[args.length - 1]);
     },
     "cons": (_, x, seq) => {
         return [x, ...seq];
+    },
+    "floor": (_, x) => {
+        return Math.floor(x);
     },
 };
 

@@ -1,16 +1,3 @@
-(print "map demo:")
-
-(defn map
-    ([f] '())
-    ([f x] '((f x)))
-    ([f x & rest] (cons (f x) (apply map f rest))))
-
-(print (map inc 1 2 3e4 4 5))
-
-
-(print "middle-rest demo:")
-
-(defn foo
-    ([a & rest z] '(a rest z)))
-
-(print (foo "A" "B" "C" "D" "E"))
+(let [x (map dec 0 1 2 3)]
+    (print x)
+    (assert (= (head x) -1)))

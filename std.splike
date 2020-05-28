@@ -43,10 +43,31 @@
     ([f x] '((f x)))
     ([f x & rest] (cons (f x) (apply map f rest))))
 
+(defn each
+    ([f l] (apply map f l)))
+
 (defn count
     ([] 0)
     ([x] 1)
     ([x & rest] (+ 1 (apply count rest))))
+
+(defn len
+    ([l] (.-length l)))
+
+(defn zip
+    ([a b]
+        (if (= (len a) 0)
+            '()
+            (cons
+                '((head a) (head b))
+                (zip (tail a) (tail b))))))
+
+(defn list-eq
+    ([a b]
+        (apply and
+            (apply map
+                (fn ([t] (= (# t 0) (# t 1))))
+                (zip a b)))))
 
 (defn ceil
     ([x] (+ 1 (floor x))))

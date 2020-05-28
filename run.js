@@ -72,7 +72,7 @@ function evaluate(thing, scope = {}) {
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
     } else if (type(thing) === "ListExpr") {
-        if (thing.head.startsWith(".")) { // JS member access
+        if (typeof thing.head === "string" && thing.head.startsWith(".")) { // JS member access
             if (thing.head[1] === "-") { // field access
                 const fieldName = thing.head.substring(2);
                 const obj = evaluate(thing.tail[0], scope);
@@ -85,7 +85,7 @@ function evaluate(thing, scope = {}) {
             }
         } else {
             if (type(thing.head) === "Empty") return;
-            const fn = getVal(thing.head, scope);
+            const fn = evaluate(thing.head, scope);
             if (!(fn instanceof Function)) {
                 throw `'${thing.head}' is not a function.`;
             }
@@ -104,15 +104,15 @@ function evaluate(thing, scope = {}) {
     }
 }
 
-const noEvalForms = ["def", "defn", "defined?", "if", "let", "and", "or"];
+const noEvalForms = ["def", "fn", "defn", "defined?", "if", "let", "and", "or"];
 
 const globals = {
     // macros
     "def": (scope, name, value) => {
         globals[name] = evaluate(value);
     },
-    "defn": (_, name, ...variants) => {
-        globals[name] = function(scope, ...args) {
+    "fn": (_, ...variants) => {
+        return function(scope, ...args) {
             for (const variant of variants) {
                 const params = variant.head.elements;
 
@@ -152,8 +152,12 @@ const globals = {
                     return result;
                 }
             }
-            throw new TypeError(`No matching call signature for \`${name}\` with arguments (${args.join(" ")}).`);
+            const funcName = this.functionName ? `\`${this.functionName}\`` : "anonymous function";
+            throw new TypeError(`No matching call signature for ${funcName} with arguments (${args.join(" ")}).`);
         };
+    },
+    "defn": (_, name, ...variants) => {
+        globals[name] = globals["fn"](_, ...variants).bind({ functionName: name });
     },
     "defined?": (scope, name) => {
         return name in globals;
@@ -227,6 +231,9 @@ const globals = {
     },
     "tail": (_, list) => {
         return list.slice(1);
+    },
+    "#": (_, list, i) => {
+        return list[i];
     },
     "apply": (_, fn, ...args) => {
         return fn(_, ...args.slice(0, args.length - 1), ...args[args.length - 1]);

@@ -13,40 +13,6 @@ function readFile(filename) {
     return fsp.readFile(filename, "utf-8");
 }
 
-function type(x) {
-    return x.type;
-}
-
-function getVal(x, scope) {
-    if (scope && scope.hasOwnProperty(x)) return scope[x];
-    else if (globals.hasOwnProperty(x)) return globals[x];
-    throw new ReferenceError(`Unknown identifier '${x}'.`);
-}
-
-function evaluate(thing, scope = {}) {
-    // console.log(thing, scope);
-    if (thing.hasOwnProperty("literal")) {
-        return thing.literal;
-    } else if (type(thing) === "ListExpr") {
-        if (type(thing.head) === "Empty") return;
-        const fn = getVal(thing.head, scope);
-        if (!(fn instanceof Function)) {
-            throw `'${thing.head}' is not a function.`;
-        }
-        if (noEvalForms.includes(thing.head)) {
-            return fn(scope, ...thing.tail);
-        } else {
-            return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
-        }
-    } else if (Array.isArray(thing)) {
-        return thing.map(item => evaluate(item, scope));
-    } else if (typeof thing === "string") {
-        return getVal(thing, scope);
-    } else {
-        return thing;
-    }
-}
-
 async function runFile(filename) {
     log("=".repeat(process.stdout.columns));
 
@@ -89,6 +55,40 @@ async function runFile(filename) {
     }
     const runDiffTime = process.hrtime(runStartTime);
     log(`Ran in ${formatHRTime(runDiffTime)}.`)
+}
+
+function type(x) {
+    return x.type;
+}
+
+function getVal(x, scope) {
+    if (scope && scope.hasOwnProperty(x)) return scope[x];
+    else if (globals.hasOwnProperty(x)) return globals[x];
+    throw new ReferenceError(`Unknown identifier '${x}'.`);
+}
+
+function evaluate(thing, scope = {}) {
+    // console.log(thing, scope);
+    if (thing.hasOwnProperty("literal")) {
+        return thing.literal;
+    } else if (type(thing) === "ListExpr") {
+        if (type(thing.head) === "Empty") return;
+        const fn = getVal(thing.head, scope);
+        if (!(fn instanceof Function)) {
+            throw `'${thing.head}' is not a function.`;
+        }
+        if (noEvalForms.includes(thing.head)) {
+            return fn(scope, ...thing.tail);
+        } else {
+            return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
+        }
+    } else if (Array.isArray(thing)) {
+        return thing.map(item => evaluate(item, scope));
+    } else if (typeof thing === "string") {
+        return getVal(thing, scope);
+    } else {
+        return thing;
+    }
 }
 
 const noEvalForms = ["def", "defn", "defined?", "if", "let", "and", "or"];
@@ -194,6 +194,14 @@ const globals = {
         let p = x;
         for (const it of rest) p *= it;
         return p;
+    },
+    "/": (_, x, ...rest) => {
+        if (!rest.length) return 1 / x;
+        else {
+            let q = x;
+            for (const it of rest) q /= it;
+            return q;
+        }
     },
     "=": (_, x, y) => {
         return x == y;

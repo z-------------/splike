@@ -165,7 +165,7 @@ const globals = {
     "if": (scope, condition, trueBranch, falseBranch) => {
         const cond = evaluate(condition, scope);
         if (cond) return evaluate(trueBranch, scope);
-        else if (falseBranch) return evaluate(falseBranch, scope);
+        else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
         if (type(b) !== "SquareList") throw "First argument to `let` must be a squarelist.";
@@ -202,6 +202,9 @@ const globals = {
         console.error("Fatal:", ...stuff);
         process.exit(1);
     },
+    "_subscript": (_, obj, i) => {
+        return obj[i];
+    },
     "+": (_, x, ...rest) => {
         let s = x;
         for (const it of rest) s += it;
@@ -232,9 +235,6 @@ const globals = {
     "tail": (_, list) => {
         return list.slice(1);
     },
-    "#": (_, list, i) => {
-        return list[i];
-    },
     "apply": (_, fn, ...args) => {
         return fn(_, ...args.slice(0, args.length - 1), ...args[args.length - 1]);
     },
@@ -244,7 +244,28 @@ const globals = {
     "floor": (_, x) => {
         return Math.floor(x);
     },
+    "hash": (_, entries) => {
+        return new Hash(entries);
+    },
 };
+
+class Hash {
+    m = new Map();
+
+    constructor(entries) {
+        for (let i = 0; i < entries.length; i += 2) {
+            this.m.set(entries[i], entries[i + 1]);
+        }
+    }
+
+    set(key, val) { return this.m.set(key, val); }
+    get(key, val) { return this.m.get(key, val); }
+    has(key) { return this.m.has(key); }
+    del(key) { return this.m.delete(key); }
+    get size() { return this.m.size; }
+
+    toString() { return this.m.toString(); }
+}
 
 (async () => {
     for (const filename of ["std.splike", "test.splike"]) {

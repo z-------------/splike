@@ -1,5 +1,6 @@
-(print (eq '(0 2 4) '(0 2 4)))
-(print (eq '(0 2 4) '(0 2 5)))
+(def h (hash '("foo" 0 "bar" 3)))
 
-(print (eq 4 4.0))
-(print (eq 4 5))
+(def a '(0 1 2))
+(def b '(0 1 2))
+
+(print (has '(a b) '(0 1 2)))

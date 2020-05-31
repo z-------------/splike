@@ -72,33 +72,34 @@ function evaluate(thing, scope = {}) {
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
     } else if (type(thing) === "ListExpr") {
-        if (typeof thing.head === "string" && thing.head.startsWith(".")) { // JS member access
-            if (thing.head[1] === "-") { // field access
-                const fieldName = thing.head.substring(2);
-                const obj = evaluate(thing.tail[0], scope);
-                return obj[fieldName];
-            } else { // method access
-                const methodName = thing.head.substring(1);
-                const obj = evaluate(thing.tail[0], scope);
-                const args = evaluate(thing.tail.slice(1), scope);
-                return obj[methodName](...args);
-            }
+        if (type(thing.head) === "Empty") return;
+        const fn = evaluate(thing.head, scope);
+        if (!(fn instanceof Function)) {
+            throw `'${thing.head}' is not a function.`;
+        }
+        if (noEvalForms.includes(thing.head)) {
+            return fn(scope, ...thing.tail);
         } else {
-            if (type(thing.head) === "Empty") return;
-            const fn = evaluate(thing.head, scope);
-            if (!(fn instanceof Function)) {
-                throw `'${thing.head}' is not a function.`;
-            }
-            if (noEvalForms.includes(thing.head)) {
-                return fn(scope, ...thing.tail);
-            } else {
-                return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
-            }
+            return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
         }
     } else if (Array.isArray(thing)) {
         return thing.map(item => evaluate(item, scope));
     } else if (typeof thing === "string") {
-        return getVal(thing, scope);
+        if (thing.startsWith(".")) {
+            if (thing[1] === "-") {
+                const fieldName = thing.substring(2);
+                return function(_, obj) {
+                    return obj[fieldName];
+                }
+            } else {
+                const methodName = thing.substring(1);
+                return function(_, obj, ...args) {
+                    return obj[methodName](...args);
+                };
+            }
+        } else {
+            return getVal(thing, scope);
+        }
     } else {
         return thing;
     }

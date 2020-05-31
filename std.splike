@@ -66,16 +66,7 @@
 
 (defn has
     ([a b]
-        (let [t (type a)]
-            (if (= t "Hash")
-                (.has a b)
-                (.includes a b)))))
-
-(defn has2
-    ([a b]
         (let [f (if (= (type a) "Hash") .has .includes)]
-            "this does't work, because of the current implementation of `.`-functions."
-            "we should change the way they are handled so they can be used like any other function."
             (f a b))))
 
 (defn zip

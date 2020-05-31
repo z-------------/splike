@@ -1,6 +1,8 @@
-(def h (hash '("foo" 0 "bar" 3)))
+(print
+    (.-size
+        (if false
+            (hash '("z" 0 "o" 1))
+            (hash '("tw" 2 "th" 3 "fo" 4)))))
 
-(def a '(0 1 2))
-(def b '(0 1 2))
-
-(print (has '(a b) '(0 1 2)))
+(print (has (hash '("foo" "bar")) "foo"))
+(print (has '("one" "two") "one"))

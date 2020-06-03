@@ -1,6 +1,6 @@
-/*
- * Lisp-like grammar
- */
+{
+  const Type = require("./type");
+}
 
 Program
   = exprs:(Expression _*)* { return exprs.map(element => element[0]); }
@@ -9,12 +9,12 @@ Expression
   = t:"'"? l:List {
       if (t === null) {
         return {
-          type: "ListExpr",
+          type: Type.ListExpr,
           head: l[0],
           tail: l[1],
         };
       } else {
-        if (l[0].type === "Empty") return [];
+        if (l[0].type === Type.Empty) return [];
         else return [l[0], ...l[1]];
       }
     }
@@ -27,12 +27,12 @@ ListContents
   = _* head:Item tail:(_ Item)* _* {
       return [head, tail.map(element => element[1])];
     }
-  / _* { return [{ type: "Empty" }, []]; }
+  / _* { return [{ type: Type.Empty }, []]; }
 
 SquareList
   = "[" expr:ListContents "]" {
-      const elements = expr[0].type === "Empty" ? [] : [expr[0], ...expr[1]];
-      return { type: "SquareList", elements };
+      const elements = expr[0].type === Type.Empty ? [] : [expr[0], ...expr[1]];
+      return { type: Type.SquareList, elements };
     }
 
 Item
@@ -59,10 +59,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter+ '"' {
-      return { type: "StringLiteral", literal: literal.join("") };
+      return { type: Type.StringLiteral, literal: literal.join("") };
     }
   / "'" literal:SingleStringSourceCharacter+ "'" {
-      return { type: "StringLiteral", literal: literal.join("") };
+      return { type: Type.StringLiteral, literal: literal.join("") };
     }
 
 Boolean

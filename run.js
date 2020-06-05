@@ -62,7 +62,8 @@ async function runFile(filename) {
 function getVal(x, scope) {
     if (scope && scope.hasOwnProperty(x)) return scope[x];
     else if (globals.hasOwnProperty(x)) return globals[x];
-    throw new ReferenceError(`Unknown identifier '${x}'.`);
+    // throw new ReferenceError(`Unknown identifier '${x}'.`);
+    return undefined;
 }
 
 function evaluate(node, scope = {}) {
@@ -181,13 +182,15 @@ const globals = {
         else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
+        const s = {};
         if (b.type !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
         for (let i = 0; i < b.items.length; i += 2) {
-            scope[b.items[i]] = evaluate(b.items[i + 1], scope);
+            s[b.items[i]] = evaluate(b.items[i + 1], scope);
         }
+        const resultScope = Object.assign({}, scope, s);
         let result;
         for (const expr of exprs) {
-            result = evaluate(expr, scope);
+            result = evaluate(expr, resultScope);
         }
         return result;
     },

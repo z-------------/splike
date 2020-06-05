@@ -1,10 +1,10 @@
 const Enum = require("./lib/enum");
 
-const Type = new Enum(
+const NodeType = new Enum(
     "Empty",
     "ListExpr",
     "SquareList",
     "StringLiteral",
 );
 
-module.exports = Type;
+module.exports = NodeType;

@@ -2,7 +2,7 @@ const fsp = require("fs").promises;
 const util = require("util");
 
 const p = require("./parser");
-const Type = require("./type");
+const NodeType = require("./nodeType");
 
 const log = process.argv[2] === "-q" ? function() {} : function(...stuff) { console.log(...stuff); }
 
@@ -72,8 +72,8 @@ function evaluate(thing, scope = {}) {
     // console.log(thing, scope);
     if (thing.hasOwnProperty("literal")) {
         return thing.literal;
-    } else if (type(thing) === Type.ListExpr) {
-        if (type(thing.head) === Type.Empty) return;
+    } else if (type(thing) === NodeType.ListExpr) {
+        if (type(thing.head) === NodeType.Empty) return;
         const fn = evaluate(thing.head, scope);
         if (!(fn instanceof Function)) {
             throw `'${thing.head}' is not a function.`;
@@ -170,13 +170,13 @@ const globals = {
         else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
-        if (type(b) !== Type.SquareList) throw "First argument to `let` must be a squarelist.";
+        if (type(b) !== NodeType.SquareList) throw "First argument to `let` must be a squarelist.";
         for (let i = 0; i < b.elements.length; i += 2) {
             scope[b.elements[i]] = evaluate(b.elements[i + 1], scope);
         }
         let result;
         for (const expr of exprs) {
-            result = evaluate({ type: Type.ListExpr, head: expr.head, tail: expr.tail }, scope);
+            result = evaluate({ type: NodeType.ListExpr, head: expr.head, tail: expr.tail }, scope);
         }
         return result;
     },

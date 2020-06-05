@@ -1,5 +1,5 @@
 {
-  const Type = require("./type");
+  const NodeType = require("./nodeType");
 }
 
 Program
@@ -9,12 +9,12 @@ Expression
   = t:"'"? l:List {
       if (t === null) {
         return {
-          type: Type.ListExpr,
+          type: NodeType.ListExpr,
           head: l[0],
           tail: l[1],
         };
       } else {
-        if (l[0].type === Type.Empty) return [];
+        if (l[0].type === NodeType.Empty) return [];
         else return [l[0], ...l[1]];
       }
     }
@@ -27,12 +27,12 @@ ListContents
   = _* head:Item tail:(_ Item)* _* {
       return [head, tail.map(element => element[1])];
     }
-  / _* { return [{ type: Type.Empty }, []]; }
+  / _* { return [{ type: NodeType.Empty }, []]; }
 
 SquareList
   = "[" expr:ListContents "]" {
-      const elements = expr[0].type === Type.Empty ? [] : [expr[0], ...expr[1]];
-      return { type: Type.SquareList, elements };
+      const elements = expr[0].type === NodeType.Empty ? [] : [expr[0], ...expr[1]];
+      return { type: NodeType.SquareList, elements };
     }
 
 Item
@@ -59,10 +59,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter+ '"' {
-      return { type: Type.StringLiteral, literal: literal.join("") };
+      return { type: NodeType.StringLiteral, literal: literal.join("") };
     }
   / "'" literal:SingleStringSourceCharacter+ "'" {
-      return { type: Type.StringLiteral, literal: literal.join("") };
+      return { type: NodeType.StringLiteral, literal: literal.join("") };
     }
 
 Boolean

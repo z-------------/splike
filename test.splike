@@ -1,6 +1,6 @@
-(let []
+(do
     (let [a 5]
-        (print a "<- should be defined" (defined? a))
+        (print a (defined? a))
         (print (# {a 1, foo "bar", h {z 26, y 25}} "h")))
-    (print a "<- should be undefined" (defined? a))
+    (print a (defined? a))
     (print (* (Math/random) Math/PI)))

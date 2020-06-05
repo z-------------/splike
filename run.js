@@ -65,50 +65,50 @@ function getVal(x, scope) {
     throw new ReferenceError(`Unknown identifier '${x}'.`);
 }
 
-function evaluate(thing, scope = {}) {
-    // console.log(thing, scope);
-    if ([NodeType.String].includes(thing.type)) {
-        return thing.literal;
-    } else if ([NodeType.List, NodeType.QuotedList, NodeType.Vector].includes(thing.type)) {
+function evaluate(node, scope = {}) {
+    // console.log(node, scope);
+    if ([NodeType.String].includes(node.type)) {
+        return node.literal;
+    } else if ([NodeType.List, NodeType.QuotedList, NodeType.Vector].includes(node.type)) {
         let values;
-        const head = evaluate(thing.items[0], scope);
-        if (thing.type === NodeType.List && macros.includes(head)) {
-            values = [head, ...slice(thing.items, 1)];
+        const head = evaluate(node.items[0], scope);
+        if (node.type === NodeType.List && macros.includes(head)) {
+            values = [head, ...slice(node.items, 1)];
         } else {
-            values = [head, ...thing.items.slice(1).map(y => evaluate(y, scope))];
+            values = [head, ...node.items.slice(1).map(y => evaluate(y, scope))];
         }
-        if (thing.type === NodeType.List) {
+        if (node.type === NodeType.List) {
             if (!(head instanceof Function)) {
-                throw `'${thing.items[0]}' is not a function.`;
+                throw `'${node.items[0]}' is not a function.`;
             }
             return head(scope, ...slice(values, 1));
         } else {
             return values;
         }
-    } else if (typeof thing === "string") {
-        if (thing.startsWith(".")) {
-            if (thing[1] === "-") {
-                const fieldName = thing.substring(2);
+    } else if (typeof node === "string") {
+        if (node.startsWith(".")) {
+            if (node[1] === "-") {
+                const fieldName = node.substring(2);
                 return function(_, obj) {
                     return obj[fieldName];
                 }
             } else {
-                const methodName = thing.substring(1);
+                const methodName = node.substring(1);
                 return function(_, obj, ...args) {
                     return obj[methodName](...args);
                 };
             }
         } else {
-            return getVal(thing, scope);
+            return getVal(node, scope);
         }
-    } else if (thing.type === NodeType.Hash) {
+    } else if (node.type === NodeType.Hash) {
         const entries = [];
-        for (const [key, val] of thing.pairs) {
+        for (const [key, val] of node.pairs) {
             entries.push(key, evaluate(val, scope));
         }
         return new Hash(entries);
     } else {
-        return thing;
+        return node;
     }
 }
 

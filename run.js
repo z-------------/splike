@@ -66,6 +66,10 @@ function getVal(x, scope) {
     return undefined;
 }
 
+function format(obj) {
+    return (obj instanceof Object && "inspect" in obj) ? obj.inspect() : util.inspect(obj);
+}
+
 function evaluate(node, scope = {}) {
     // console.log(node, scope);
     if ([NodeType.String].includes(node.type)) {
@@ -213,7 +217,9 @@ const globals = {
     "type": (_, x) => {
         return x.constructor.name;
     },
-    "print": (_, ...stuff) => { console.log(...stuff); },
+    "print": (_, ...stuff) => {
+        console.log(...stuff.map(format));
+    },
     "die": (_, ...stuff) => {
         console.error("Fatal:", ...stuff);
         process.exit(1);
@@ -283,7 +289,9 @@ class Hash {
     del(key) { return this.m.delete(key); }
     get size() { return this.m.size; }
 
-    toString() { return this.m.toString(); }
+    inspect() {
+        return "{" + [...this.m.entries()].map(([key, val]) => `${key} ${format(val)}`).join(", ") + "}";
+    }
 }
 
 (async () => {

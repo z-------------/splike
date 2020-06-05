@@ -1,6 +1,1 @@
-(do
-    (let [a 5]
-        (print a (defined? a))
-        (print (# {a 1, foo "bar", h {z 26, y 25}} "h")))
-    (print a (defined? a))
-    (print (* (Math/random) Math/PI)))
+(print {one 1, foo ["bar"], h {a 65}})

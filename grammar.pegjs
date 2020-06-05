@@ -57,10 +57,10 @@ SingleStringSourceCharacter
   = !"'" . { return text(); }
 
 String
-  = '"' literal:DoubleStringSourceCharacter+ '"' {
+  = '"' literal:DoubleStringSourceCharacter* '"' {
       return { type: NodeType.String, literal: literal.join("") };
     }
-  / "'" literal:SingleStringSourceCharacter+ "'" {
+  / "'" literal:SingleStringSourceCharacter* "'" {
       return { type: NodeType.String, literal: literal.join("") };
     }
 

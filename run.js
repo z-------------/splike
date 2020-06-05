@@ -7,6 +7,10 @@ const slice = require("./lib/slice");
 
 const log = process.argv[2] === "-q" ? function() {} : function(...stuff) { console.log(...stuff); }
 
+function format(obj) {
+    return (obj instanceof Object && "inspect" in obj) ? obj.inspect() : obj;
+}
+
 function formatHRTime([seconds, nanoseconds]) {
     return `${seconds}.${nanoseconds.toString().padStart(9, "0")}s`;
 }
@@ -66,9 +70,6 @@ function getVal(x, scope) {
     return undefined;
 }
 
-function format(obj) {
-    return (obj instanceof Object && "inspect" in obj) ? obj.inspect() : util.inspect(obj);
-}
 const jsGlobalPat = /.+(\/.+)+/;
 
 function evaluate(node, scope = {}) {
@@ -254,6 +255,9 @@ const globals = {
     },
     "<": (_, x, y) => {
         return x < y;
+    },
+    "_cmod": (_, x, y) => {
+        return x % y;
     },
     "head": (_, list) => {
         return list[0];

@@ -1,1 +1,9 @@
-(print {one 1, foo ["bar"], h {a 65}})
+(print
+    (rem -10 3)
+    (rem 10 -3)
+    (rem -10 -3)
+    (rem  10 3))
+(print
+    (mod -10 3)
+    (mod 10 -3)
+    (mod -10 -3))

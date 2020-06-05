@@ -59,10 +59,6 @@ async function runFile(filename) {
     log(`Ran in ${formatHRTime(runDiffTime)}.`)
 }
 
-function type(x) {
-    return x.type;
-}
-
 function getVal(x, scope) {
     if (scope && scope.hasOwnProperty(x)) return scope[x];
     else if (globals.hasOwnProperty(x)) return globals[x];
@@ -172,7 +168,7 @@ const globals = {
         else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
-        if (type(b) !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
+        if (b.type !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
         for (let i = 0; i < b.items.length; i += 2) {
             scope[b.items[i]] = evaluate(b.items[i + 1], scope);
         }

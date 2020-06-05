@@ -174,7 +174,7 @@ const globals = {
         globals[name] = globals["fn"](_, ...variants).bind({ functionName: name });
     },
     "defined?": (scope, name) => {
-        return name in globals;
+        return globals.hasOwnProperty(name) || scope.hasOwnProperty(name);
     },
     "if": (scope, condition, trueBranch, falseBranch) => {
         const cond = evaluate(condition, scope);

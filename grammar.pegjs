@@ -6,34 +6,24 @@ Program
   = exprs:(Expression _*)* { return exprs.map(element => element[0]); }
 
 Expression
-  = t:"'"? l:List {
-      if (t === null) {
-        return {
-          type: NodeType.ListExpr,
-          head: l[0],
-          tail: l[1],
-        };
-      } else {
-        if (l[0].type === NodeType.Empty) return [];
-        else return [l[0], ...l[1]];
-      }
+  = expr:List { return { type: NodeType.List, items: expr }; }
+  / expr:QuotedList { return { type: NodeType.QuotedList, items: expr }; }
+  / expr:Vector { return { type: NodeType.Vector, items: expr }; }
+
+ListContents
+  = _* head:Item tail:(_ Item)* _* {
+      return [head, ...tail.map(element => element[1])];
     }
-  / SquareList
+  / _* { return []; }
 
 List
   = "(" expr:ListContents ")" { return expr; }
 
-ListContents
-  = _* head:Item tail:(_ Item)* _* {
-      return [head, tail.map(element => element[1])];
-    }
-  / _* { return [{ type: NodeType.Empty }, []]; }
+QuotedList
+  = "'(" expr:ListContents ")" { return expr; }
 
-SquareList
-  = "[" expr:ListContents "]" {
-      const elements = expr[0].type === NodeType.Empty ? [] : [expr[0], ...expr[1]];
-      return { type: NodeType.SquareList, elements };
-    }
+Vector
+  = "[" expr:ListContents "]" { return expr; }
 
 Item
   = Number
@@ -59,10 +49,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter+ '"' {
-      return { type: NodeType.StringLiteral, literal: literal.join("") };
+      return { type: NodeType.String, literal: literal.join("") };
     }
   / "'" literal:SingleStringSourceCharacter+ "'" {
-      return { type: NodeType.StringLiteral, literal: literal.join("") };
+      return { type: NodeType.String, literal: literal.join("") };
     }
 
 Boolean

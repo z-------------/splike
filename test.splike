@@ -1,8 +1,5 @@
-(print
-    (.-size
-        (if false
-            (hash '("z" 0 "o" 1))
-            (hash '("tw" 2 "th" 3 "fo" 4)))))
+(defn testfn
+    ([a & rest]
+        (print a rest)))
 
-(print (has (hash '("foo" "bar")) "foo"))
-(print (has '("one" "two") "one"))
+(testfn [(+ 1 2) "rest"] [(if true (+ 1 2)) 1 2])

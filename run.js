@@ -3,6 +3,7 @@ const util = require("util");
 
 const p = require("./parser");
 const NodeType = require("./nodeType");
+const slice = require("./lib/slice");
 
 const log = process.argv[2] === "-q" ? function() {} : function(...stuff) { console.log(...stuff); }
 
@@ -70,21 +71,24 @@ function getVal(x, scope) {
 
 function evaluate(thing, scope = {}) {
     // console.log(thing, scope);
-    if (thing.hasOwnProperty("literal")) {
+    if ([NodeType.String].includes(thing.type)) {
         return thing.literal;
-    } else if (type(thing) === NodeType.ListExpr) {
-        if (type(thing.head) === NodeType.Empty) return;
-        const fn = evaluate(thing.head, scope);
-        if (!(fn instanceof Function)) {
-            throw `'${thing.head}' is not a function.`;
-        }
-        if (noEvalForms.includes(thing.head)) {
-            return fn(scope, ...thing.tail);
+    } else if ([NodeType.List, NodeType.QuotedList, NodeType.Vector].includes(thing.type)) {
+        let values;
+        const head = evaluate(thing.items[0], scope);
+        if (thing.type === NodeType.List && macros.includes(head)) {
+            values = [head, ...slice(thing.items, 1)];
         } else {
-            return fn(scope, ...thing.tail.map(y => evaluate(y, scope)));
+            values = [head, ...thing.items.slice(1).map(y => evaluate(y, scope))];
         }
-    } else if (Array.isArray(thing)) {
-        return thing.map(item => evaluate(item, scope));
+        if (thing.type === NodeType.List) {
+            if (!(head instanceof Function)) {
+                throw `'${thing.items[0]}' is not a function.`;
+            }
+            return head(scope, ...slice(values, 1));
+        } else {
+            return values;
+        }
     } else if (typeof thing === "string") {
         if (thing.startsWith(".")) {
             if (thing[1] === "-") {
@@ -106,8 +110,6 @@ function evaluate(thing, scope = {}) {
     }
 }
 
-const noEvalForms = ["def", "fn", "defn", "defined?", "if", "let", "and", "or"];
-
 const globals = {
     // macros
     "def": (scope, name, value) => {
@@ -116,7 +118,7 @@ const globals = {
     "fn": (_, ...variants) => {
         return function(scope, ...args) {
             for (const variant of variants) {
-                const params = variant.head.elements;
+                const params = variant.items[0].items;
 
                 let namedParamCount = 0;
                 const hasRestParam = params.includes("&");
@@ -148,7 +150,7 @@ const globals = {
                     }
                     // console.log(params, args, s);
                     let result = [];
-                    for (const expr of variant.tail) {
+                    for (const expr of variant.items.slice(1)) {
                         result = evaluate(expr, s);
                     }
                     return result;
@@ -170,13 +172,13 @@ const globals = {
         else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
     },
     "let": (scope, b, ...exprs) => {
-        if (type(b) !== NodeType.SquareList) throw "First argument to `let` must be a squarelist.";
-        for (let i = 0; i < b.elements.length; i += 2) {
-            scope[b.elements[i]] = evaluate(b.elements[i + 1], scope);
+        if (type(b) !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
+        for (let i = 0; i < b.items.length; i += 2) {
+            scope[b.items[i]] = evaluate(b.items[i + 1], scope);
         }
         let result;
         for (const expr of exprs) {
-            result = evaluate({ type: NodeType.ListExpr, head: expr.head, tail: expr.tail }, scope);
+            result = evaluate(expr, scope);
         }
         return result;
     },
@@ -250,6 +252,9 @@ const globals = {
         return new Hash(entries);
     },
 };
+
+const macroNames = ["def", "fn", "defn", "defined?", "if", "let", "and", "or"];
+const macros = macroNames.map(name => globals[name]);
 
 class Hash {
     m = new Map();

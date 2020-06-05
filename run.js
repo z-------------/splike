@@ -69,6 +69,7 @@ function getVal(x, scope) {
 function format(obj) {
     return (obj instanceof Object && "inspect" in obj) ? obj.inspect() : util.inspect(obj);
 }
+const jsGlobalPat = /.+(\/.+)+/;
 
 function evaluate(node, scope = {}) {
     // console.log(node, scope);
@@ -103,13 +104,16 @@ function evaluate(node, scope = {}) {
                     return obj[methodName](...args);
                 };
             }
-        } else if (node.includes("/")) {
+        } else if (jsGlobalPat.test(node)) {
             const split = node.split("/");
             let obj = globalThis;
             for (const name of slice(split, 0, split.length - 1)) {
                 obj = obj[name];
             }
-            return obj[split[split.length - 1]];
+            const memberName = split[split.length - 1];
+            return function(_, ...args) {
+                return obj[memberName](...args);
+            };
         } else {
             return getVal(node, scope);
         }

@@ -1,9 +1,2 @@
-(print
-    (rem -10 3)
-    (rem 10 -3)
-    (rem -10 -3)
-    (rem  10 3))
-(print
-    (mod -10 3)
-    (mod 10 -3)
-    (mod -10 -3))
+(print (rand))
+(print (rand 100))

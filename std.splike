@@ -114,3 +114,7 @@
             (if (< (- x t) 0.5)
                 t
                 (ceil x)))))
+
+(defn rand
+    ([] (Math/random))
+    ([n] (* n (Math/random))))

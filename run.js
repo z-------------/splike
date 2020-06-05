@@ -131,7 +131,7 @@ function evaluate(node, scope = {}) {
 
 const globals = {
     // macros
-    "def": (scope, name, value) => {
+    "def": (_, name, value) => {
         globals[name] = evaluate(value);
     },
     "fn": (_, ...variants) => {

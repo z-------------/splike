@@ -69,6 +69,9 @@
 (defn len
     ([l] (.-length l)))
 
+(defn empty?
+    ([l] (= 0 (len l))))
+
 (defn #
     ([x i]
         (let [t (type x)]
@@ -118,3 +121,29 @@
 (defn rand
     ([] (Math/random))
     ([n] (* n (Math/random))))
+
+(defn reduce
+    ([f l & rest]
+        (if (empty? l)
+            (head rest)
+            (let [cur (if
+                    (empty? rest)
+                    (f (head l))
+                    (f (head rest) (head l)))]
+                (reduce f (tail l) cur)))))
+
+(defn max
+    ([l]
+        (reduce
+            (fn
+                ([n] n)
+                ([cmax n] (if (> n cmax) n cmax)))
+            l)))
+
+(defn min
+    ([l]
+        (reduce
+            (fn
+                ([n] n)
+                ([cmin n] (if (< n cmin) n cmin)))
+            l)))

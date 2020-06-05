@@ -1,4 +1,5 @@
 (let []
     (let [a 5]
         (print (# {a 1, foo "bar", h {z 26, y 25}} "h")))
-    (print a))
+    (print a "<- should be undefined")
+    (print (* (Math/random) Math/PI)))

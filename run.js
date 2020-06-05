@@ -98,6 +98,13 @@ function evaluate(node, scope = {}) {
                     return obj[methodName](...args);
                 };
             }
+        } else if (node.includes("/")) {
+            const split = node.split("/");
+            let obj = globalThis;
+            for (const name of slice(split, 0, split.length - 1)) {
+                obj = obj[name];
+            }
+            return obj[split[split.length - 1]];
         } else {
             return getVal(node, scope);
         }

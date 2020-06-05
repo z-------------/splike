@@ -267,9 +267,6 @@ const globals = {
     "cons": (_, x, seq) => {
         return [x, ...seq];
     },
-    "floor": (_, x) => {
-        return Math.floor(x);
-    },
     "hash": (_, entries) => {
         return new Hash(entries);
     },

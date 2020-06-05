@@ -93,6 +93,9 @@
             (list-eq a b)
             (= a b))))
 
+(defn floor
+    ([x] (Math/floor x)))
+
 (defn ceil
     ([x] (+ 1 (floor x))))
 

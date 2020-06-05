@@ -24,6 +24,14 @@ QuotedList
 
 Vector
   = "[" expr:ListContents "]" { return expr; }
+  
+Hash
+  = "{" _* pairs:(HashPair _* "," _*)* lastPair:HashPair* _* "}" {
+  	  return { type: NodeType.Hash, pairs: [...pairs.map(n => n[0]), ...lastPair] };
+    }
+
+HashPair
+  = key:Identifier _* val:Item { return [key, val]; }
 
 Item
   = Number
@@ -31,6 +39,7 @@ Item
   / Identifier
   / Expression
   / String
+  / Hash
 
 Identifier
   = IdentifierCharacter+ IdentifierEndCharacter* { return text(); }

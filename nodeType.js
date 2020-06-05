@@ -4,6 +4,7 @@ const NodeType = new Enum(
     "List",
     "QuotedList",
     "Vector",
+    "Hash",
     "String",
 );
 

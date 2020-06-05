@@ -101,6 +101,12 @@ function evaluate(thing, scope = {}) {
         } else {
             return getVal(thing, scope);
         }
+    } else if (thing.type === NodeType.Hash) {
+        const entries = [];
+        for (const [key, val] of thing.pairs) {
+            entries.push(key, evaluate(val, scope));
+        }
+        return new Hash(entries);
     } else {
         return thing;
     }

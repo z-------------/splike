@@ -1,5 +1,4 @@
-(defn testfn
-    ([a & rest]
-        (print a rest)))
-
-(testfn [(+ 1 2) "rest"] [(if true (+ 1 2)) 1 2])
+(let []
+    (let [a 5]
+        (print (# {a 1, foo "bar", h {z 26, y 25}} "h")))
+    (print a))

@@ -6,3 +6,6 @@
 (print (size "hello"))
 (print (size [0 1 2]))
 (print (size {a 0, b 1, c 2}))
+(print (empty? {}))
+(print (empty? ""))
+(print (empty? ["foo" "bar"]))

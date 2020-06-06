@@ -76,7 +76,7 @@
             (len c))))
 
 (defn empty?
-    ([l] (= 0 (len l))))
+    ([l] (= 0 (size l))))
 
 (defn #
     ([x i]

@@ -69,6 +69,12 @@
 (defn len
     ([l] (.-length l)))
 
+(defn size
+    ([c]
+        (case (type c)
+            "Hash" (.-size c)
+            (len c))))
+
 (defn empty?
     ([l] (= 0 (len l))))
 

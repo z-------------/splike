@@ -1,7 +1,8 @@
-(print (reduce + '(0 1 2 3 4 5 6 7 8 9 10)))
+(print (case "wtf"
+    "hello" "greetings"
+    "bye" "seeya"
+    "default"))
 
-(print (reduce * '(5 4 3 2 1)))
-
-(let [l '(3 0 1 100 -10 -500)]
-    (print (max l))
-    (print (min l)))
+(print (size "hello"))
+(print (size [0 1 2]))
+(print (size {a 0, b 1, c 2}))

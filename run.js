@@ -129,7 +129,11 @@ function evaluate(node, scope = {}) {
     }
 }
 
-const globals = {
+const globals = {};
+
+/* builtins */
+
+const builtins = {
     // macros
     "def": (_, name, value) => {
         globals[name] = evaluate(value);
@@ -189,6 +193,20 @@ const globals = {
         const cond = evaluate(condition, scope);
         if (cond) return evaluate(trueBranch, scope);
         else if (typeof falseBranch !== "undefined") return evaluate(falseBranch, scope);
+    },
+    "case": (scope, expr, ...rest) => {
+        const value = evaluate(expr, scope);
+        let i;
+        let l = Math.floor(rest.length / 2) * 2;
+        for (i = 0; i < l; i += 2) {
+            const candValue = evaluate(rest[i], scope);
+            if (value == candValue) {
+                return evaluate(rest[i + 1], scope);
+            }
+        }
+        if (i < rest.length) {
+            return evaluate(rest[rest.length - 1], scope);
+        }
     },
     "let": (scope, b, ...exprs) => {
         const s = {};
@@ -275,9 +293,12 @@ const globals = {
         return new Hash(entries);
     },
 };
+for (const name in builtins) {
+    globals[name] = builtins[name];
+}
 
-const macroNames = ["def", "fn", "defn", "defined?", "if", "let", "and", "or"];
-const macros = macroNames.map(name => globals[name]);
+const macroNames = ["def", "fn", "defn", "defined?", "if", "case", "let", "and", "or"];
+const macros = macroNames.map(name => builtins[name]);
 
 class Hash {
     m = new Map();
@@ -298,6 +319,8 @@ class Hash {
         return "{" + [...this.m.entries()].map(([key, val]) => `${key} ${format(val)}`).join(", ") + "}";
     }
 }
+
+/* load and run */
 
 (async () => {
     for (const filename of ["std.splike", "test.splike"]) {

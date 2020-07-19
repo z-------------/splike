@@ -32,6 +32,10 @@
     ([x y] (+ x (- y)))
     ([x & rest] (- x (apply + rest))))
 
+(defn =
+    ([a b]
+        (case a b true false)))
+
 (defn >
     ([a b] (and (not (< a b)) (not (= a b)))))
 

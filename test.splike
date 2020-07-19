@@ -1,11 +1,6 @@
-(print (case "wtf"
-    "hello" "greetings"
-    "bye" "seeya"
-    "default"))
-
-(print (size "hello"))
-(print (size [0 1 2]))
-(print (size {a 0, b 1, c 2}))
-(print (empty? {}))
-(print (empty? ""))
-(print (empty? ["foo" "bar"]))
+(print (= 1 1))
+(print (= 1 2))
+(print (= "but why?" "but why?"))
+(print (= "but why?" "but how?"))
+(print (= 3 (round 3.14159)))
+(print (= 4 (round 3.14159)))

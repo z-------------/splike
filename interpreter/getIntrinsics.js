@@ -141,9 +141,6 @@ module.exports = function getIntrinsics(globals, evaluate) {
                 return q;
             }
         },
-        "=": (_, x, y) => {
-            return x == y;
-        },
         "<": (_, x, y) => {
             return x < y;
         },

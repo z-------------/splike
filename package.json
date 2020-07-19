@@ -1,6 +1,7 @@
 {
 	"scripts": {
-		"gen": "pegjs -o parser.js grammar.pegjs"
+		"gen": "pegjs -o parser.js grammar.pegjs",
+		"run": "node interpreter/run"
 	},
 	"dependencies": {
 		"pegjs": "^0.10.0"

@@ -116,10 +116,6 @@ module.exports = function getIntrinsics(globals, evaluate) {
         "print": (_, ...stuff) => {
             console.log(...stuff.map(format));
         },
-        "die": (_, ...stuff) => {
-            console.error("Fatal:", ...stuff);
-            process.exit(1);
-        },
         "_subscript": (_, obj, i) => {
             return obj[i];
         },

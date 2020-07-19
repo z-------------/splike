@@ -119,14 +119,10 @@ const highers = {
         return obj[i];
     },
     "+": (globals, evaluate) => (_, x, ...rest) => {
-        let s = x;
-        for (const it of rest) s += it;
-        return s;
+        return [x, ...rest].reduce((a, b) => a + b);
     },
     "*": (globals, evaluate) => (_, x, ...rest) => {
-        let p = x;
-        for (const it of rest) p *= it;
-        return p;
+        return [x, ...rest].reduce((a, b) => a * b);
     },
     "/": (globals, evaluate) => (_, x, ...rest) => {
         if (!rest.length) return 1 / x;

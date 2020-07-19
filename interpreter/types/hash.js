@@ -10,7 +10,7 @@ module.exports = class Hash {
     }
 
     set(key, val) { return this.m.set(key, val); }
-    get(key, val) { return this.m.get(key); }
+    get(key) { return this.m.get(key); }
     has(key) { return this.m.has(key); }
     del(key) { return this.m.delete(key); }
     get size() { return this.m.size; }

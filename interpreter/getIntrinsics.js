@@ -126,11 +126,7 @@ const highers = {
     },
     "/": (globals, evaluate) => (_, x, ...rest) => {
         if (!rest.length) return 1 / x;
-        else {
-            let q = x;
-            for (const it of rest) q /= it;
-            return q;
-        }
+        else return [x, ...rest].reduce((a, b) => a / b);
     },
     "<": (globals, evaluate) => (_, x, y) => {
         return x < y;

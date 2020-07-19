@@ -8,6 +8,10 @@ const log = require("../lib/debugLog");
 const Evaluator = require("./evaluator");
 const getIntrinsics = require("./getIntrinsics");
 
+function sectionHeading(label) {
+    return log("=".repeat(process.stdout.columns) + "\n" + label + ":");
+}
+
 function formatHRTime([seconds, nanoseconds]) {
     return `${seconds}.${nanoseconds.toString().padStart(9, "0")}s`;
 }
@@ -17,9 +21,7 @@ function readFile(filename) {
 }
 
 async function runFile(filename) {
-    log("=".repeat(process.stdout.columns));
-
-    log("SOURCE:")
+    sectionHeading("SOURCE");
 
     const readStartTime = process.hrtime();
     const source = await readFile(filename);
@@ -27,9 +29,7 @@ async function runFile(filename) {
     log(source);
     log(`Read in ${formatHRTime(readDiffTime)}.`);
 
-    log("=".repeat(process.stdout.columns));
-
-    log("PARSE:")
+    sectionHeading("PARSE");
 
     const parseStartTime = process.hrtime();
     let output;
@@ -44,9 +44,7 @@ async function runFile(filename) {
     log(util.inspect(output, { showHidden: false, depth: null }));
     log(`Parsed in ${formatHRTime(parseDiffTime)}.`);
 
-    log("=".repeat(process.stdout.columns));
-
-    log("OUTPUT:")
+    sectionHeading("OUTPUT");
     
     const runStartTime = process.hrtime();
     try {

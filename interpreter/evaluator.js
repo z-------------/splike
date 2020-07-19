@@ -4,6 +4,8 @@ const Hash = require("./types/hash");
 
 const jsGlobalPat = /.+(\/.+)+/;
 
+const listlikeNodeTypes = [NodeType.List, NodeType.QuotedList, NodeType.Vector];
+
 module.exports = class Evaluator {
     globals;
     macros;
@@ -70,21 +72,25 @@ module.exports = class Evaluator {
         }
         return new Hash(entries);
     }
+
+    evalIdentifier(node, scope) {
+        if (node.startsWith(".")) {
+            return this.evalFieldAccess(node);
+        } else if (jsGlobalPat.test(node)) {
+            return this.evalGlobalAccess(node);
+        } else {
+            return this.getVal(node, scope);
+        }
+    }
     
     evaluate(node, scope = {}) {
         // console.log(node, scope);
-        if ([NodeType.String].includes(node.type)) {
+        if (node.type === NodeType.String) {
             return node.literal;
-        } else if ([NodeType.List, NodeType.QuotedList, NodeType.Vector].includes(node.type)) {
+        } else if (listlikeNodeTypes.includes(node.type)) {
             return this.evalListlike(node, scope);
         } else if (typeof node === "string") {
-            if (node.startsWith(".")) {
-                return this.evalFieldAccess(node);
-            } else if (jsGlobalPat.test(node)) {
-                return this.evalGlobalAccess(node);
-            } else {
-                return this.getVal(node, scope);
-            }
+            return this.evalIdentifier(node, scope);
         } else if (node.type === NodeType.Hash) {
             return this.evalHash(node, scope);
         } else {

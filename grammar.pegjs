@@ -6,9 +6,9 @@ Program
   = exprs:(Expression _*)* { return exprs.map(element => element[0]); }
 
 Expression
-  = expr:List { return { type: NodeType.List, items: expr, location: location() }; }
-  / expr:QuotedList { return { type: NodeType.QuotedList, items: expr, location: location() }; }
-  / expr:Vector { return { type: NodeType.Vector, items: expr, location: location() }; }
+  = expr:List { return { type: NodeType.List, data: expr, location: location() }; }
+  / expr:QuotedList { return { type: NodeType.QuotedList, data: expr, location: location() }; }
+  / expr:Vector { return { type: NodeType.Vector, data: expr, location: location() }; }
 
 ListContents
   = _* head:Item tail:(_ Item)* _* {
@@ -27,7 +27,7 @@ Vector
   
 Hash
   = "{" _* pairs:(HashPair _* "," _*)* lastPair:HashPair* _* "}" {
-  	  return { type: NodeType.Hash, pairs: [...pairs.map(n => n[0]), ...lastPair] };
+  	  return { type: NodeType.Hash, data: [...pairs.map(n => n[0]), ...lastPair] };
     }
 
 HashPair
@@ -58,10 +58,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter* '"' {
-      return { type: NodeType.String, literal: literal.join(""), location: location() };
+      return { type: NodeType.String, data: literal.join(""), location: location() };
     }
   / "'" literal:SingleStringSourceCharacter* "'" {
-      return { type: NodeType.String, literal: literal.join(""), location: location() };
+      return { type: NodeType.String, data: literal.join(""), location: location() };
     }
 
 Boolean

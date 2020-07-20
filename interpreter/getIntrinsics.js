@@ -13,7 +13,7 @@ const highers = {
     "fn": (globals, evaluate) => (_, ...variants) => {
         return function(scope, ...args) {
             for (const variant of variants) {
-                const params = variant.items[0].items.map(n => n.data);
+                const params = variant.data[0].data.map(n => n.data);
 
                 let namedParamCount = 0;
                 const hasRestParam = params.includes("&");
@@ -45,7 +45,7 @@ const highers = {
                     }
                     // console.log(params, args, s);
                     let result = [];
-                    for (const expr of variant.items.slice(1)) {
+                    for (const expr of variant.data.slice(1)) {
                         result = evaluate(expr, s);
                     }
                     return result;
@@ -83,8 +83,8 @@ const highers = {
     "let": (globals, evaluate) => (scope, b, ...exprs) => {
         const s = {};
         if (b.type !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
-        for (let i = 0; i < b.items.length; i += 2) {
-            s[b.items[i].data] = evaluate(b.items[i + 1], scope);
+        for (let i = 0; i < b.data.length; i += 2) {
+            s[b.data[i].data] = evaluate(b.data[i + 1], scope);
         }
         const resultScope = Object.assign({}, scope, s);
         let result;

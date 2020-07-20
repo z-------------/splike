@@ -4,6 +4,7 @@ const util = require("util");
 const p = require("../parser");
 
 const log = require("../lib/debugLog");
+const traverse = require("../lib/traverse");
 
 const Evaluator = require("./evaluator");
 const getIntrinsics = require("./getIntrinsics");
@@ -20,6 +21,12 @@ function readFile(filename) {
     return fsp.readFile(filename, "utf-8");
 }
 
+function processTree(root, { filename }) {
+    traverse(root, n => {
+        if (n.location) n.location.filename = filename;
+    });
+}
+
 async function runFile(filename) {
     sectionHeading("SOURCE");
 
@@ -32,6 +39,8 @@ async function runFile(filename) {
     sectionHeading("PARSE");
 
     const parseStartTime = process.hrtime();
+
+    // parse
     let output;
     try {
         output = p.parse(source);
@@ -40,6 +49,10 @@ async function runFile(filename) {
         console.error(exp.location);
         process.exit(1);
     }
+
+    // process
+    processTree({ data: output }, { filename });
+
     const parseDiffTime = process.hrtime(parseStartTime);
     log(util.inspect(output, { showHidden: false, depth: null }));
     log(`Parsed in ${formatHRTime(parseDiffTime)}.`);

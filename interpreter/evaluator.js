@@ -28,15 +28,15 @@ module.exports = class Evaluator {
 
     evalListlike(node, scope) {
         let values;
-        const head = this.evaluate(node.items[0], scope);
+        const head = this.evaluate(node.data[0], scope);
         if (node.type === NodeType.List && this.macros.includes(head)) {
-            values = [head, ...slice(node.items, 1)];
+            values = [head, ...slice(node.data, 1)];
         } else {
-            values = [head, ...node.items.slice(1).map(y => this.evaluate(y, scope))];
+            values = [head, ...node.data.slice(1).map(y => this.evaluate(y, scope))];
         }
         if (node.type === NodeType.List) {
             if (!(head instanceof Function)) {
-                throw new TypeError(`${node.items[0].data} is not a function.`);
+                throw new TypeError(`${node.data[0].data} is not a function.`);
             }
             return head(scope, ...slice(values, 1));
         } else {
@@ -72,7 +72,7 @@ module.exports = class Evaluator {
 
     evalHash(node, scope) {
         const entries = [];
-        for (const [key, val] of node.pairs) {
+        for (const [key, val] of node.data) {
             entries.push(key, this.evaluate(val, scope));
         }
         return new Hash(entries);
@@ -94,7 +94,7 @@ module.exports = class Evaluator {
         let value;
         try {
             if (node.type === NodeType.String) {
-                value = node.literal;
+                value = node.data;
             } else if (listlikeNodeTypes.includes(node.type)) {
                 value = this.evalListlike(node, scope);
             } else if (node.type === NodeType.Identifier) {
@@ -117,8 +117,8 @@ module.exports = class Evaluator {
         lines.push(e.constructor.name + ": " + e.message);
         for (const n of this.stack.reverse()) {
             if (n.type !== NodeType.List) continue;
-            const { start } = n.location;
-            lines.push(`    at ${n.items[0].data} (${start.line}:${start.column})`);
+            const { start, filename } = n.location;
+            lines.push(`    at ${n.data[0].data} (${filename}:${start.line}:${start.column})`);
         }
         e.stack = lines.join("\n");
         e.isProcessed = true;

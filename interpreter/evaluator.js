@@ -14,6 +14,10 @@ module.exports = class Evaluator {
         this.globals = globals;
     }
 
+    setMacros(macros) {
+        this.macros = macros;
+    }
+
     getVal(x, scope) {
         if (scope && scope.hasOwnProperty(x)) return scope[x];
         else if (this.globals.hasOwnProperty(x)) return this.globals[x];
@@ -31,7 +35,7 @@ module.exports = class Evaluator {
         }
         if (node.type === NodeType.List) {
             if (!(head instanceof Function)) {
-                throw `'${node.items[0]}' is not a function.`;
+                throw new TypeError(`${node.items[0].data} is not a function.`);
             }
             return head(scope, ...slice(values, 1));
         } else {
@@ -40,13 +44,13 @@ module.exports = class Evaluator {
     }
 
     evalFieldAccess(node) {
-        if (node[1] === "-") {
-            const fieldName = node.substring(2);
+        if (node.data[1] === "-") {
+            const fieldName = node.data.substring(2);
             return function(_, obj) {
                 return obj[fieldName];
             }
         } else {
-            const methodName = node.substring(1);
+            const methodName = node.data.substring(1);
             return function(_, obj, ...args) {
                 return obj[methodName](...args);
             };
@@ -54,7 +58,7 @@ module.exports = class Evaluator {
     }
 
     evalGlobalAccess(node) {
-        const split = node.split("/");
+        const split = node.data.split("/");
         let obj = globalThis;
         for (const name of slice(split, 0, split.length - 1)) {
             obj = obj[name];
@@ -74,12 +78,12 @@ module.exports = class Evaluator {
     }
 
     evalIdentifier(node, scope) {
-        if (node.startsWith(".")) {
+        if (node.data.startsWith(".")) {
             return this.evalFieldAccess(node);
-        } else if (jsGlobalPat.test(node)) {
+        } else if (jsGlobalPat.test(node.data)) {
             return this.evalGlobalAccess(node);
         } else {
-            return this.getVal(node, scope);
+            return this.getVal(node.data, scope);
         }
     }
     
@@ -89,16 +93,12 @@ module.exports = class Evaluator {
             return node.literal;
         } else if (listlikeNodeTypes.includes(node.type)) {
             return this.evalListlike(node, scope);
-        } else if (typeof node === "string") {
+        } else if (node.type === NodeType.Identifier) {
             return this.evalIdentifier(node, scope);
         } else if (node.type === NodeType.Hash) {
             return this.evalHash(node, scope);
         } else {
             return node;
         }
-    }
-
-    setMacros(macros) {
-        this.macros = macros;
     }
 }

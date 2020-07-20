@@ -6,6 +6,7 @@ const NodeType = new Enum(
     "Vector",
     "Hash",
     "String",
+    "Identifier",
 );
 
 module.exports = NodeType;

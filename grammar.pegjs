@@ -6,9 +6,9 @@ Program
   = exprs:(Expression _*)* { return exprs.map(element => element[0]); }
 
 Expression
-  = expr:List { return { type: NodeType.List, items: expr }; }
-  / expr:QuotedList { return { type: NodeType.QuotedList, items: expr }; }
-  / expr:Vector { return { type: NodeType.Vector, items: expr }; }
+  = expr:List { return { type: NodeType.List, items: expr, location: location() }; }
+  / expr:QuotedList { return { type: NodeType.QuotedList, items: expr, location: location() }; }
+  / expr:Vector { return { type: NodeType.Vector, items: expr, location: location() }; }
 
 ListContents
   = _* head:Item tail:(_ Item)* _* {
@@ -42,7 +42,7 @@ Item
   / Hash
 
 Identifier
-  = IdentifierCharacter+ IdentifierEndCharacter* { return text(); }
+  = IdentifierCharacter+ IdentifierEndCharacter* { return { type: NodeType.Identifier, data: text(), location: location() }; }
 
 IdentifierCharacter
   = [A-Za-z_+\-.*/^<>=#&]
@@ -58,10 +58,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter* '"' {
-      return { type: NodeType.String, literal: literal.join("") };
+      return { type: NodeType.String, literal: literal.join(""), location: location() };
     }
   / "'" literal:SingleStringSourceCharacter* "'" {
-      return { type: NodeType.String, literal: literal.join("") };
+      return { type: NodeType.String, literal: literal.join(""), location: location() };
     }
 
 Boolean

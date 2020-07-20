@@ -8,12 +8,12 @@ const highers = {
         return evaluate(expr, scope);
     },
     "def": (globals, evaluate) => (_, name, value) => {
-        globals[name] = evaluate(value);
+        globals[name.data] = evaluate(value);
     },
     "fn": (globals, evaluate) => (_, ...variants) => {
         return function(scope, ...args) {
             for (const variant of variants) {
-                const params = variant.items[0].items;
+                const params = variant.items[0].items.map(n => n.data);
 
                 let namedParamCount = 0;
                 const hasRestParam = params.includes("&");
@@ -52,14 +52,14 @@ const highers = {
                 }
             }
             const funcName = this.functionName ? `\`${this.functionName}\`` : "anonymous function";
-            throw new TypeError(`No matching call signature for ${funcName} with arguments (${args.join(" ")}).`);
+            throw new TypeError(`No matching call signature for ${funcName} with arguments (${args.join(", ")}).`);
         };
     },
     "defn": (globals, evaluate) => (_, name, ...variants) => {
-        globals[name] = globals["fn"](_, ...variants).bind({ functionName: name });
+        globals[name.data] = globals["fn"](_, ...variants).bind({ functionName: name.data });
     },
     "defined?": (globals, evaluate) => (scope, name) => {
-        return globals.hasOwnProperty(name) || scope.hasOwnProperty(name);
+        return globals.hasOwnProperty(name.data) || scope.hasOwnProperty(name.data);
     },
     "if": (globals, evaluate) => (scope, condition, trueBranch, falseBranch) => {
         const cond = evaluate(condition, scope);
@@ -84,7 +84,7 @@ const highers = {
         const s = {};
         if (b.type !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
         for (let i = 0; i < b.items.length; i += 2) {
-            s[b.items[i]] = evaluate(b.items[i + 1], scope);
+            s[b.items[i].data] = evaluate(b.items[i + 1], scope);
         }
         const resultScope = Object.assign({}, scope, s);
         let result;

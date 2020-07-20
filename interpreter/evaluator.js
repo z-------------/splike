@@ -9,6 +9,7 @@ const listlikeNodeTypes = [NodeType.List, NodeType.QuotedList, NodeType.Vector];
 module.exports = class Evaluator {
     globals;
     macros;
+    stack = [];
 
     constructor(globals) {
         this.globals = globals;
@@ -89,16 +90,38 @@ module.exports = class Evaluator {
     
     evaluate(node, scope = {}) {
         // console.log(node, scope);
-        if (node.type === NodeType.String) {
-            return node.literal;
-        } else if (listlikeNodeTypes.includes(node.type)) {
-            return this.evalListlike(node, scope);
-        } else if (node.type === NodeType.Identifier) {
-            return this.evalIdentifier(node, scope);
-        } else if (node.type === NodeType.Hash) {
-            return this.evalHash(node, scope);
-        } else {
-            return node;
+        this.stack.push(node);
+        let value;
+        try {
+            if (node.type === NodeType.String) {
+                value = node.literal;
+            } else if (listlikeNodeTypes.includes(node.type)) {
+                value = this.evalListlike(node, scope);
+            } else if (node.type === NodeType.Identifier) {
+                value = this.evalIdentifier(node, scope);
+            } else if (node.type === NodeType.Hash) {
+                value = this.evalHash(node, scope);
+            } else {
+                value = node;
+            }
+        } catch (e) {
+            if (!e.isProcessed) throw this.processException(e);
+            else throw e;
         }
+        this.stack.pop();
+        return value;
+    }
+
+    processException(e) {
+        const lines = [];
+        lines.push(e.constructor.name + ": " + e.message);
+        for (const n of this.stack.reverse()) {
+            if (n.type !== NodeType.List) continue;
+            const { start } = n.location;
+            lines.push(`    at ${n.items[0].data} (${start.line}:${start.column})`);
+        }
+        e.stack = lines.join("\n");
+        e.isProcessed = true;
+        return e;
     }
 }

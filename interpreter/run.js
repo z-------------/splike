@@ -52,7 +52,7 @@ async function runFile(filename) {
             evaluate(expr);
         }
     } catch (exp) {
-        console.error("Exception:", exp);
+        console.error("Exception:", exp.stack);
     }
     const runDiffTime = process.hrtime(runStartTime);
     log(`Ran in ${formatHRTime(runDiffTime)}.`)

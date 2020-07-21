@@ -151,7 +151,7 @@ const highers = {
     },
 };
 
-module.exports = function getIntrinsics(globals, evaluate) {
+module.exports = function intrinsics(globals, evaluate) {
     const builtins = {};
     for (const name in highers) {
         builtins[name] = highers[name](globals, evaluate);

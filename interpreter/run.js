@@ -7,7 +7,7 @@ const log = require("../lib/debugLog");
 const traverse = require("../lib/traverse");
 
 const Evaluator = require("./evaluator");
-const getIntrinsics = require("./getIntrinsics");
+const intrinsics = require("./intrinsics");
 
 function sectionHeading(label) {
     return log("=".repeat(process.stdout.columns) + "\n" + label + ":");
@@ -78,7 +78,7 @@ const globals = {};
 const evaluator = new Evaluator(globals);
 const evaluate = evaluator.evaluate.bind(evaluator);
 
-const [builtins, macros] = getIntrinsics(globals, evaluate);
+const [builtins, macros] = intrinsics(globals, evaluate);
 for (const name in builtins) {
     globals[name] = builtins[name];
 }

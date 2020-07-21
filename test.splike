@@ -1,8 +1,1 @@
-(defn foo
-    ([x] (+ 1 x)))
-    
-(defn bar [x]
-    (+ 2 x))
-
-(print (foo 0))
-(print (bar 0))
+(print (reduce + '(1 2 3)))

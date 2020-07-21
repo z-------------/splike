@@ -1,63 +1,59 @@
-(defn assert
-    ([cond]
-        (if (not cond)
-            (die "Assertion failed"))))
+(defn assert [cond]
+    (if (not cond)
+        (die "Assertion failed")))
 
-(defn die
-    ([& rest]
-        (apply console/error (cons "Fatal:" rest))
-        (process/exit 1)))
+(defn die [& rest]
+    (apply console/error (cons "Fatal:" rest))
+    (process/exit 1))
 
-(defn inc
-    ([a] (+ 1 a)))
+(defn inc [a]
+    (+ 1 a))
 
-(defn dec
-    ([a] (- a 1)))
+(defn dec [a]
+    (- a 1))
 
-(defn bool
-    ([x] (if x true false)))
+(defn bool [x]
+    (if x true false))
 
-(defn not
-    ([x] (if x false true)))
+(defn not [x]
+    (if x false true))
 
-(defn xor
-    ([x y]
-        (or
-            (and (not x) y)
-            (and x (not y)))))
+(defn xor [x y]
+    (or
+        (and (not x) y)
+        (and x (not y))))
 
-(defn nand
-    ([& rest] (not (apply and rest))))
+(defn nand [& rest]
+    (not (apply and rest)))
 
-(defn nor
-    ([& rest] (not (apply or rest))))
+(defn nor [& rest]
+    (not (apply or rest)))
 
 (defn -
     ([x] (* -1 x))
     ([x y] (+ x (- y)))
     ([x & rest] (- x (apply + rest))))
 
-(defn =
-    ([a b]
-        (case a b true false)))
+(defn = [a b]
+    (case a b true false))
 
-(defn >
-    ([a b] (and (not (< a b)) (not (= a b)))))
+(defn > [a b]
+    (and (not (< a b)) (not (= a b))))
 
-(defn >=
-    ([a b] (or (> a b) (= a b))))
+(defn >= [a b]
+    (or (> a b) (= a b)))
 
-(defn <=
-    ([a b] (or (< a b) (= a b))))
+(defn <= [a b]
+    (or (< a b) (= a b)))
 
-(defn quot
-    ([a b] (floor (/ a b))))
+(defn quot [a b]
+    (floor (/ a b)))
 
-(defn rem
-    ([a b] (_cmod a b)))
+(defn rem [a b]
+    (_cmod a b))
 
-(defn mod
-    ([a b] (- a (* (Math/floor (/ a b)) b))))
+(defn mod [a b]
+    (- a (* (Math/floor (/ a b)) b)))
 
 (defn map
     ([f] '())
@@ -69,96 +65,86 @@
     ([x] 1)
     ([x & rest] (+ 1 (apply count rest))))
     
-(defn last
-    ([l] (# l (- (len l) 1))))
+(defn last [l]
+    (# l (- (len l) 1)))
 
-(defn do
-    ([& vals] (last vals)))
+(defn do [& vals]
+    (last vals))
 
-(defn len
-    ([l] (.-length l)))
+(defn len [l]
+    (.-length l))
 
-(defn size
-    ([c]
-        (case (type c)
-            "Hash" (.-size c)
-            (len c))))
+(defn size [c]
+    (case (type c)
+        "Hash" (.-size c)
+        (len c)))
 
-(defn empty?
-    ([l] (= 0 (size l))))
+(defn empty? [l]
+    (= 0 (size l)))
 
-(defn #
-    ([x i]
-        (let [t (type x)]
-            (if (= t "Hash")
-                (.get x i)
-                (_subscript x i)))))
+(defn # [x i]
+    (let [t (type x)]
+        (if (= t "Hash")
+            (.get x i)
+            (_subscript x i))))
 
-(defn has
-    ([a b]
-        (let [f (if (= (type a) "Hash") .has .includes)]
-            (f a b))))
+(defn has [a b]
+    (let [f (if (= (type a) "Hash") .has .includes)]
+        (f a b)))
 
-(defn zip
-    ([a b]
-        (if (= (len a) 0)
-            '()
-            (cons
-                '((head a) (head b))
-                (zip (tail a) (tail b))))))
+(defn zip [a b]
+    (if (= (len a) 0)
+        '()
+        (cons
+            '((head a) (head b))
+            (zip (tail a) (tail b)))))
 
-(defn list-eq
-    ([a b]
-        (apply and
-            (apply map
-                (fn ([t] (eq (# t 0) (# t 1))))
-                (zip a b)))))
+(defn list-eq [a b]
+    (apply and
+        (apply map
+            (fn ([t] (eq (# t 0) (# t 1))))
+            (zip a b))))
 
-(defn eq
-    ([a b]
-        (if (= (type a) "Array")
-            (list-eq a b)
-            (= a b))))
+(defn eq [a b]
+    (if (= (type a) "Array")
+        (list-eq a b)
+        (= a b)))
 
-(defn floor
-    ([x] (Math/floor x)))
+(defn floor [x]
+    (Math/floor x))
 
-(defn ceil
-    ([x] (+ 1 (floor x))))
+(defn ceil [x]
+    (+ 1 (floor x)))
 
-(defn round
-    ([x]
-        (let [t (floor x)]
-            (if (< (- x t) 0.5)
-                t
-                (ceil x)))))
+(defn round [x]
+    (let [t (floor x)]
+        (if (< (- x t) 0.5)
+            t
+            (ceil x))))
 
 (defn rand
     ([] (Math/random))
     ([n] (* n (Math/random))))
 
-(defn reduce
-    ([f l & rest]
-        (if (empty? l)
-            (head rest)
-            (let [cur (if
-                    (empty? rest)
-                    (f (head l))
-                    (f (head rest) (head l)))]
-                (reduce f (tail l) cur)))))
+(defn reduce [f l & rest]
+    (if (empty? l)
+        (head rest)
+        (let [cur (if
+                (empty? rest)
+                (f (head l))
+                (f (head rest) (head l)))]
+            (reduce f (tail l) cur))))
 
-(defn max
-    ([l]
-        (reduce
-            (fn
-                ([n] n)
-                ([cmax n] (if (> n cmax) n cmax)))
-            l)))
+(defn max [l]
+    (reduce
+        (fn
+            ([n] n)
+            ([cmax n] (if (> n cmax) n cmax)))
+        l))
 
-(defn min
-    ([l]
-        (reduce
-            (fn
-                ([n] n)
-                ([cmin n] (if (< n cmin) n cmin)))
-            l)))
+(defn min [l]
+    (reduce
+        (fn
+            ([n] n)
+            ([cmin n] (if (< n cmin) n cmin)))
+        l))

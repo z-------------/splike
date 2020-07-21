@@ -12,6 +12,13 @@ const highers = {
     },
     "fn": (globals, evaluate) => (_, ...variants) => {
         return function(scope, ...args) {
+            if (variants[0].type === NodeType.Vector) {
+                // short form; convert the tree to full form
+                variants = [{
+                    type: NodeType.List,
+                    data: variants,
+                }];
+            }
             for (const variant of variants) {
                 const params = variant.data[0].data.map(n => n.data);
 
@@ -44,7 +51,7 @@ const highers = {
                         s[restParamName] = args.slice(restOpIdx, restOpIdx + args.length - namedParamCount);
                     }
                     // console.log(params, args, s);
-                    let result = [];
+                    let result;
                     for (const expr of variant.data.slice(1)) {
                         result = evaluate(expr, s);
                     }

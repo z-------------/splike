@@ -101,18 +101,20 @@ const highers = {
         return result;
     },
     "and": (globals, evaluate) => (scope, ...args) => {
+        let val;
         for (const arg of args) {
-            const val = evaluate(arg, scope);
-            if (!val) return false;
+            val = evaluate(arg, scope);
+            if (!val) return val;
         }
-        return true;
+        return val;
     },
     "or": (globals, evaluate) => (scope, ...args) => {
+        let val;
         for (const arg of args) {
-            const val = evaluate(arg, scope);
-            if (val) return true;
+            val = evaluate(arg, scope);
+            if (val) return val;
         }
-        return false;
+        return val;
     },
 
     // functions

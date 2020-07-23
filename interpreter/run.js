@@ -1,11 +1,16 @@
 const fsp = require("fs").promises;
 const util = require("util");
 
-const log = require("../lib/debugLog");
-
 const parse = require("./parse");
 const Evaluator = require("./evaluator");
 const intrinsics = require("./intrinsics");
+
+const debugLog = require("../lib/debugLog");
+const parseArgs = require("../lib/parseArgs");
+
+const args = parseArgs(process.argv.slice(2));
+
+const log = debugLog(args.q);
 
 function sectionHeading(label) {
     return log("=".repeat(process.stdout.columns) + "\n" + label + ":");
@@ -76,7 +81,7 @@ evaluator.setMacros(macros);
 /* load and run */
 
 (async () => {
-    for (const filename of ["std.splike", "test.splike"]) {
+    for (const filename of ["std.splike", ...args._.map(n => n + ".splike")]) {
         await runFile(filename);
     }
 })();

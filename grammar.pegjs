@@ -35,7 +35,7 @@ Hash
     }
 
 HashPair
-  = key:Identifier _* val:Item { return [key, val]; }
+  = key:Identifier _* val:Item { return [key.data, val]; }
 
 Item
   = Number

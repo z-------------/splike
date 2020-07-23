@@ -9,10 +9,11 @@ module.exports = class Hash {
         }
     }
 
-    set(key, val) { return this.m.set(key, val); }
+    set(key, val) { this.m.set(key, val); return this; }
     get(key) { return this.m.get(key); }
     has(key) { return this.m.has(key); }
-    del(key) { return this.m.delete(key); }
+    del(key) { this.m.delete(key); return this; }
+    get keys() { return [...this.m.keys()]; }
     get size() { return this.m.size; }
 
     inspect() {

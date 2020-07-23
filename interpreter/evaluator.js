@@ -4,7 +4,7 @@ const Hash = require("./types/hash");
 
 const jsGlobalPat = /.+(\/.+)+/;
 
-const listlikeNodeTypes = [NodeType.List, NodeType.QuotedList, NodeType.Vector];
+const NODETYPE_LISTLIKE = NodeType.List | NodeType.QuotedList | NodeType.Vector;
 
 module.exports = class Evaluator {
     globals;
@@ -95,7 +95,7 @@ module.exports = class Evaluator {
         try {
             if (node.type === NodeType.String) {
                 value = node.data;
-            } else if (listlikeNodeTypes.includes(node.type)) {
+            } else if (node.type & NODETYPE_LISTLIKE) {
                 value = this.evalListlike(node, scope);
             } else if (node.type === NodeType.Identifier) {
                 value = this.evalIdentifier(node, scope);

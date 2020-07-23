@@ -27,20 +27,20 @@ module.exports = class Evaluator {
     }
 
     evalListlike(node, scope) {
-        let values;
-        const head = this.evaluate(node.data[0], scope);
-        if (node.type === NodeType.List && this.macros.includes(head)) {
-            values = [head, ...slice(node.data, 1)];
-        } else {
-            values = [head, ...node.data.slice(1).map(y => this.evaluate(y, scope))];
-        }
         if (node.type === NodeType.List) {
+            const head = this.evaluate(node.data[0], scope);
             if (!(head instanceof Function)) {
                 throw new TypeError(`${node.data[0].data} is not a function.`);
             }
+            let values;
+            if (this.macros.includes(head)) {
+                values = [head, ...slice(node.data, 1)];
+            } else {
+                values = [head, ...node.data.slice(1).map(y => this.evaluate(y, scope))];
+            }
             return head(scope, ...slice(values, 1));
         } else {
-            return values;
+            return node.data.map(y => this.evaluate(y, scope));
         }
     }
 

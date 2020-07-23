@@ -7,8 +7,8 @@ Program
 
 Expression
   = expr:List { return { type: NodeType.List, data: expr, location: location() }; }
-  / expr:QuotedList { return { type: NodeType.QuotedList, data: expr, location: location() }; }
-  / expr:Vector { return { type: NodeType.Vector, data: expr, location: location() }; }
+  / expr:QuotedList { return { type: NodeType.QuotedList, data: expr }; }
+  / expr:Vector { return { type: NodeType.Vector, data: expr }; }
 
 ListContents
   = _* head:Item tail:(_ Item)* _* {
@@ -42,7 +42,7 @@ Item
   / Hash
 
 Identifier
-  = IdentifierCharacter+ IdentifierEndCharacter* { return { type: NodeType.Identifier, data: text(), location: location() }; }
+  = IdentifierCharacter+ IdentifierEndCharacter* { return { type: NodeType.Identifier, data: text() }; }
 
 IdentifierCharacter
   = [A-Za-z_+\-.*/^<>=#&]
@@ -58,10 +58,10 @@ SingleStringSourceCharacter
 
 String
   = '"' literal:DoubleStringSourceCharacter* '"' {
-      return { type: NodeType.String, data: literal.join(""), location: location() };
+      return { type: NodeType.String, data: literal.join("") };
     }
   / "'" literal:SingleStringSourceCharacter* "'" {
-      return { type: NodeType.String, data: literal.join(""), location: location() };
+      return { type: NodeType.String, data: literal.join("") };
     }
 
 Boolean

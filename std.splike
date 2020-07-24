@@ -34,6 +34,9 @@
     ([x y] (+ x (- y)))
     ([x & rest] (- x (apply + rest))))
 
+(defn ** [n p]
+    (Math/pow n p))
+
 (defn = [a b]
     (case a b true false))
 
@@ -64,7 +67,7 @@
     ([] 0)
     ([x] 1)
     ([x & rest] (+ 1 (apply count rest))))
-    
+
 (defn last [l]
     (# l (- (len l) 1)))
 

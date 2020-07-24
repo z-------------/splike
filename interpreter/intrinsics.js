@@ -88,15 +88,14 @@ const highers = {
         }
     },
     "let": (globals, evaluate) => (scope, b, ...exprs) => {
-        const s = {};
+        const s = Object.assign({}, scope);
         if (b.type !== NodeType.Vector) throw "First argument to `let` must be a Vector.";
         for (let i = 0; i < b.data.length; i += 2) {
-            s[b.data[i].data] = evaluate(b.data[i + 1], scope);
+            s[b.data[i].data] = evaluate(b.data[i + 1], s);
         }
-        const resultScope = Object.assign({}, scope, s);
         let result;
         for (const expr of exprs) {
-            result = evaluate(expr, resultScope);
+            result = evaluate(expr, s);
         }
         return result;
     },

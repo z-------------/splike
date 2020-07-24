@@ -120,6 +120,7 @@ module.exports = class Evaluator {
             const { start, filename } = n.location;
             lines.push(`    at ${n.data[0].data} (${filename}:${start.line}:${start.column})`);
         }
+        this.stack.length = 0;
         e.stack = lines.join("\n");
         e.isProcessed = true;
         return e;

@@ -149,7 +149,9 @@
             ([cmin n] (if (< n cmin) n cmin)))
         l))
 
-(defn range [start end]
-    (if (>= start end)
-        '()
-        (cons start (range (+ 1 start) end))))
+(defn range
+    ([end] (range 0 end))
+    ([start end]
+        (if (>= start end)
+            '()
+            (cons start (range (+ 1 start) end)))))

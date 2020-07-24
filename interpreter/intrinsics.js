@@ -155,9 +155,6 @@ const highers = {
     "cons": (globals, evaluate) => (_, x, seq) => {
         return [x, ...seq];
     },
-    "next": (globals, evaluate) => (_, seq) => {
-        return seq.slice(1);
-    },
     "hash": (globals, evaluate) => (_, entries) => {
         return new Hash(entries);
     },

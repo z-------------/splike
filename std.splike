@@ -55,10 +55,10 @@
 (defn mod [a b]
     (- a (* (Math/floor (/ a b)) b)))
 
-(defn map
-    ([f] '())
-    ([f x] '((f x)))
-    ([f x & rest] (cons (f x) (apply map f rest))))
+(defn map [f l]
+    (if (empty? l)
+        '()
+        (cons (f (head l)) (map f (tail l)))))
 
 (defn count
     ([] 0)
@@ -101,7 +101,7 @@
 
 (defn list-eq [a b]
     (apply and
-        (apply map
+        (map
             (fn ([t] (eq (# t 0) (# t 1))))
             (zip a b))))
 

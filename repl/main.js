@@ -2,6 +2,14 @@ const readline = require("readline");
 const parse = require("../interpreter/parse");
 const { runExprs, runFile } = require("../interpreter/run");
 
+function writePrompt() {
+    if (buffer.length === 0) {
+        process.stdout.write("> ");
+    } else {
+        process.stdout.write("... ");
+    }
+}
+
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -10,6 +18,8 @@ const rl = readline.createInterface({
 let buffer = "";
 
 runFile("std.splike").then(() => {
+    writePrompt();
+
     rl.on("line", line => {
         buffer += line + "\n";
         try {
@@ -21,6 +31,8 @@ runFile("std.splike").then(() => {
             // the buffer content is not (yet) valid code.
             // read some more.
         }
+
+        writePrompt();
     });
 
     rl.on("SIGINT", () => {

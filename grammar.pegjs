@@ -28,7 +28,7 @@ QuotedList
 
 Vector
   = "[" expr:ListContents "]" { return expr; }
-  
+
 Hash
   = "{" _* pairs:(HashPair _* "," _*)* lastPair:HashPair* _* "}" {
   	  return { type: NodeType.Hash, data: [...pairs.map(n => n[0]), ...lastPair] };
@@ -73,15 +73,21 @@ Boolean
   / "false" !IdentifierCharacter { return false; }
 
 Number
-  = sig:(Float / Integer) "e"i man:(Float / Integer) { return sig * 10 ** man; }
+  = ScientificNumber
   / Float
   / Integer
 
+NumberSign
+  = [+-]
+
+ScientificNumber
+  = NumberSign? (Float / Integer) "e"i (Float / Integer) { return parseFloat(text()); }
+
 Float
-  = "-"? Digit* "." Digit+ { return parseFloat(text()); }
+  = NumberSign? Digit* "." Digit+ { return parseFloat(text()); }
 
 Integer
-  = "-"? Digit+ { return parseInt(text()); }
+  = NumberSign? Digit+ { return parseInt(text()); }
 
 Digit
   = [0-9]

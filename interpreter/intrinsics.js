@@ -59,7 +59,7 @@ const highers = {
                 }
             }
             const funcName = this.functionName ? `\`${this.functionName}\`` : "anonymous function";
-            throw new TypeError(`No matching call signature for ${funcName} with arguments (${args.join(", ")}).`);
+            throw new TypeError(`No matching call signature for ${funcName} with arguments (${args.map(format).join(" ")}).`);
         };
     },
     "defn": (globals, evaluate) => (_, name, ...variants) => {

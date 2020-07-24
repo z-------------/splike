@@ -39,6 +39,7 @@ runFile("std.splike").then(() => {
         console.error("^C");
         if (buffer.length > 0) {
             buffer = "";
+            writePrompt();
         } else {
             process.exit();
         }

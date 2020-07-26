@@ -40,9 +40,9 @@ HashPair
 Item
   = Number
   / Boolean
-  / Identifier
   / Expression
   / String
+  / Identifier
   / Hash
 
 Identifier
@@ -54,19 +54,60 @@ IdentifierCharacter
 IdentifierEndCharacter
   = [0-9?]
 
-DoubleStringSourceCharacter
-  = !'"' . { return text(); }
-
-SingleStringSourceCharacter
-  = !"'" . { return text(); }
-
 String
-  = '"' literal:DoubleStringSourceCharacter* '"' {
-      return { type: NodeType.String, data: literal.join("") };
+  = DoubleString
+  / DoubleRawString
+  / SingleString
+  / SingleRawString
+
+DoubleString
+  = '"' c:DoubleStringCharacter* '"' {
+  	  return { type: NodeType.String, data: c.join("") };
     }
-  / "'" literal:SingleStringSourceCharacter* "'" {
-      return { type: NodeType.String, data: literal.join("") };
+    
+DoubleRawString
+  = 'r"' c:DoubleRawStringCharacter* '"' {
+      return { type: NodeType.String, data: c.join("") };
     }
+    
+DoubleStringCharacter
+  = [^\0-\x1F\\"]
+  / '\\' seq:('"' / StringGeneralEscapeSequence) { return seq; }
+
+DoubleRawStringCharacter
+  = '\\"' { return "\""; }
+  / [^\0-\x1F"]
+
+SingleString
+  = "'" c:SingleStringCharacter* "'" {
+  	  return { type: NodeType.String, data: c.join("") };
+    }
+    
+SingleRawString
+  = "r'" c:SingleRawStringCharacter* "'" {
+      return { type: NodeType.String, data: c.join("") };
+    }
+    
+SingleStringCharacter
+  = [^\0-\x1F\\']
+  / '\\' seq:("'" / StringGeneralEscapeSequence) { return seq; }
+
+SingleRawStringCharacter
+  = "\\'" { return "'"; }
+  / [^\0-\x1F']
+
+StringGeneralEscapeSequence
+  = "b" { return "\b"; }
+  / "f" { return "\f"; }
+  / "n" { return "\n"; }
+  / "r" { return "\r"; }
+  / "t" { return "\t"; }
+  / "v" { return "\v"; }
+  / "0" { return "\0"; }
+  / "\\"
+  / "u" digits:$(HexDigit HexDigit HexDigit HexDigit) {
+    return String.fromCharCode(parseInt(digits, 16));
+  }
 
 Boolean
   = "true" !IdentifierCharacter { return true; }
@@ -91,6 +132,9 @@ Integer
 
 Digit
   = [0-9]
+
+HexDigit
+  = [0-9a-f]i
 
 _ "whitespace"
   = [ \t\n\r]+

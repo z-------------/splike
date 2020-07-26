@@ -3,7 +3,7 @@
 }
 
 Program
-  = exprs:(Expression _*)* { return exprs.map(element => element[0]); }
+  = _* exprs:(Expression _*)* { return exprs.map(element => element[0]); }
 
 Expression
   = expr:List { return { type: NodeType.List, data: expr, location: location() }; }
@@ -64,12 +64,12 @@ DoubleString
   = '"' c:DoubleStringCharacter* '"' {
   	  return { type: NodeType.String, data: c.join("") };
     }
-    
+
 DoubleRawString
   = 'r"' c:DoubleRawStringCharacter* '"' {
       return { type: NodeType.String, data: c.join("") };
     }
-    
+
 DoubleStringCharacter
   = [^\0-\x1F\\"]
   / '\\' seq:('"' / StringGeneralEscapeSequence) { return seq; }
@@ -82,12 +82,12 @@ SingleString
   = "'" c:SingleStringCharacter* "'" {
   	  return { type: NodeType.String, data: c.join("") };
     }
-    
+
 SingleRawString
   = "r'" c:SingleRawStringCharacter* "'" {
       return { type: NodeType.String, data: c.join("") };
     }
-    
+
 SingleStringCharacter
   = [^\0-\x1F\\']
   / '\\' seq:("'" / StringGeneralEscapeSequence) { return seq; }

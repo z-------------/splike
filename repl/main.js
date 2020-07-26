@@ -21,16 +21,23 @@ runFile("std.splike").then(() => {
     writePrompt();
 
     rl.on("line", line => {
-        buffer += line + "\n";
+        buffer += !buffer.length ? line : ("\n" + line);
+        let exprs;
         try {
-            const exprs = parse(buffer, "repl");
-            buffer = "";
+            exprs = parse(buffer, "repl");
+        } catch (e) {
+            if (e.found !== null) {
+                console.error(e.stack);
+            }
+            // if e.found is null, parser is expecting more input, so read some more.
+            // otherwise, the input cannot become valid, so throw.
+            // (is the reasoning here correct? who knows.)
+        }
+        if (exprs) {
             const ret = runExprs(exprs);
             console.log(ret);
-        } catch (e) {
-            // the buffer content is not (yet) valid code.
-            // read some more.
         }
+        buffer = "";
 
         writePrompt();
     });

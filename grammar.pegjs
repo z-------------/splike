@@ -9,10 +9,6 @@ Expression
   = expr:List { return { type: NodeType.List, data: expr, location: location() }; }
   / expr:QuotedList { return { type: NodeType.QuotedList, data: expr }; }
   / expr:Vector { return { type: NodeType.Vector, data: expr }; }
-  / Comment { return null; }
-
-Comment
-  = ';' [^\n]*
 
 ListContents
   = _* head:Item tail:(_ Item)* _* {

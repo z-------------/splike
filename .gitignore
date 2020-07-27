@@ -1,6 +1,8 @@
 node_modules
 pnpm-debug.log
 
-parser.js
+commentsParser.js
+grammarParser.js
+
 *.txt
 test

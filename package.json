@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "gen": "pegjs -o commentsParser.js comments.pegjs && pegjs -o grammarParser.js grammar.pegjs",
+        "gen": "pegjs -o commentsParser.js grammar/comments.pegjs && pegjs -o grammarParser.js grammar/grammar.pegjs",
         "run": "node interpreter/main",
         "repl": "node repl/main"
     },

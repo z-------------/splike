@@ -36,8 +36,8 @@ runFile("std.splike").then(() => {
         if (exprs) {
             const ret = runExprs(exprs);
             console.log(ret);
+            buffer = "";
         }
-        buffer = "";
 
         writePrompt();
     });

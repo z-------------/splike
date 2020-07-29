@@ -25,18 +25,20 @@ runFile("std.splike").then(() => {
         let exprs;
         try {
             exprs = parse(buffer, "repl");
+            buffer = ""; // this doesn't happen if `parse` throws
         } catch (e) {
             if (e.found !== null) {
+                buffer = "";
                 console.error(e.stack);
             }
-            // if e.found is null, parser is expecting more input, so read some more.
+            // if e.found is null (= end of input), parser is expecting more
+            //     input, so read some more.
             // otherwise, the input cannot become valid, so throw.
             // (is the reasoning here correct? who knows.)
         }
         if (exprs) {
             const ret = runExprs(exprs);
             console.log(ret);
-            buffer = "";
         }
 
         writePrompt();

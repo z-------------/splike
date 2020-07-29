@@ -2,9 +2,13 @@
     (if (not cond)
         (die "Assertion failed")))
 
+(defn exit
+    ([] (process/exit 0))
+    ([status] (process/exit status)))
+
 (defn die [& rest]
     (apply console/error (cons "Fatal:" rest))
-    (process/exit 1))
+    (exit 1))
 
 (defn inc [a]
     (+ 1 a))
